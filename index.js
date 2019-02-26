@@ -4,9 +4,7 @@ const client = new Discord.Client();
 const CommandSystem = require('./command-system')();
 const mongoose = require('mongoose');
 const RandomEmoji = require('./fun/random-emoji')();
-
-// Models
-const Emoji = require('./models/emoji');
+const LevelSystem = require('./fun/level-system')();
 
 // Mongo connection
 mongoose.connect('mongodb://ds151805.mlab.com:51805/katia_boticata', {
@@ -40,6 +38,7 @@ client.on('message', message => {
 
   // Sends the command to the command system
   CommandSystem.execute(client, message);
+  LevelSystem.execute(message);
 
   const rand = Math.floor(Math.random() * 199);
 
