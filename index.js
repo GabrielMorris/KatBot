@@ -41,10 +41,10 @@ client.on('message', message => {
   // Sends the command to the command system
   CommandSystem.execute(client, message);
 
-  const rand = Math.floor(Math.random() * 99);
+  const rand = Math.floor(Math.random() * 199);
 
   // If random number <5 send a random Kat emoji
-  if (rand < 5) {
+  if (rand < 2) {
     RandomEmoji.execute(client, message);
   }
 });
