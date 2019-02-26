@@ -26,7 +26,8 @@ exports.run = (client, message, args) => {
     .addField(
       '**,memes**',
       'Lists all currently available Kat memes for your endless entertainment.'
-    );
+    )
+    .addField('**,katism**', 'Says something... Kat-y');
 
   message.channel.send({ embed }).catch(err => console.error(err));
 };

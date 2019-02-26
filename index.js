@@ -20,6 +20,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', () => {
   console.log('Database connection established');
+
   CommandSystem.load(() => {
     console.log('Command system loaded');
 
@@ -42,7 +43,7 @@ client.on('message', message => {
 
   const rand = Math.floor(Math.random() * 199);
 
-  // If random number <5 send a random Kat emoji
+  // If random number <2 send a random Kat emoji
   if (rand < 2) {
     RandomEmoji.execute(client, message);
   }
