@@ -4,7 +4,6 @@ const fs = require('fs');
 const commands = fs.readdirSync('./commands');
 
 exports.run = (client, message, args) => {
-  console.log(commands);
   const commandArray = [];
 
   commands.forEach(command => {
