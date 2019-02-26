@@ -1,1 +1,1 @@
-worker: forever --minUptime 1000 bot.js
+worker: forever --minUptime 1000 index.js
