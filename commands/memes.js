@@ -1,6 +1,5 @@
 exports.run = (client, message, args) => {
-  const Discord = require('discord.js');
-  const EmbedConsts = require('../constants/embeds');
+  const { createEmbed } = require('../utils/utils');
 
   const commands = [
     ',android',
@@ -14,10 +13,10 @@ exports.run = (client, message, args) => {
     ',kat6'
   ];
 
-  const embed = new Discord.RichEmbed()
-    .setColor(EmbedConsts.color)
-    .setThumbnail(EmbedConsts.images.memes)
-    .addField('**KatBot Memes**', commands.join('\n'));
+  const embedOpts = {
+    image: 'memes',
+    fields: [{ name: '**KatBot Memes**', value: commands.join('\n') }]
+  };
 
-  message.channel.send({ embed }).catch(err => console.error(err));
+  message.channel.send(createEmbed(embedOpts)).catch(err => console.error(err));
 };

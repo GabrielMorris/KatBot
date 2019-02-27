@@ -1,7 +1,8 @@
 exports.run = (client, message, args) => {
   const { Attachment } = require('discord.js');
+  const memes = require('../constants/memes');
 
-  const meme = new Attachment('https://i.imgur.com/Yn2dAaA.png');
+  const meme = new Attachment(memes.android);
 
   message.channel
     .send('<@371151824331210755>', meme)

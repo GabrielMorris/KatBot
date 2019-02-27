@@ -3,6 +3,7 @@ exports.run = (client, message, args) => {
   const Level = require('../models/levels');
   const guildID = message.guild.id;
   const EmbedConsts = require('../constants/embeds');
+  const { createEmbed } = require('../utils/utils');
 
   Level.find({ guildID })
     .sort({ experience: -1 })
@@ -12,12 +13,19 @@ exports.run = (client, message, args) => {
         (doc, index) => `${index + 1}. <@${doc.memberID}> - ${doc.experience}xp`
       );
 
-      const embed = new Discord.RichEmbed()
-        .setColor(EmbedConsts.color)
-        .setThumbnail(EmbedConsts.images.top)
-        .addField(`**${message.guild.name} rankings**`, topArray.join('\n'));
+      const embedOpts = {
+        image: 'top',
+        fields: [
+          {
+            name: `**${message.guild.name} rankings**`,
+            value: topArray.join('\n')
+          }
+        ]
+      };
 
-      message.channel.send({ embed }).catch(err => console.error(err));
+      message.channel
+        .send(createEmbed(embedOpts))
+        .catch(err => console.error(err));
     })
     .catch(err => console.error(err));
 };
