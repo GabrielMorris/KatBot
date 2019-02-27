@@ -1,8 +1,6 @@
 exports.run = (client, message, args) => {
-  const Discord = require('discord.js');
   const Level = require('../models/levels');
   const guildID = message.guild.id;
-  const EmbedConsts = require('../constants/embeds');
   const { createEmbed } = require('../utils/utils');
 
   Level.find({ guildID })
