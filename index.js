@@ -33,7 +33,7 @@ db.once('open', () => {
 client.on('ready', () => {
   setGameMessage('Appreciating Kat');
   console.log('KatBot is online');
-  DragonSword.startGame();
+  // DragonSword.startGame();
 });
 
 client.on('message', message => {
