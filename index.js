@@ -5,6 +5,7 @@ const CommandSystem = require('./command-system')();
 const mongoose = require('mongoose');
 const RandomEmoji = require('./fun/random-emoji')();
 const LevelSystem = require('./fun/level-system')();
+const DragonSword = require('./fun/dragon-sword')(client);
 
 // Mongo connection
 mongoose.connect('mongodb://ds151805.mlab.com:51805/katia_boticata', {
@@ -32,6 +33,7 @@ db.once('open', () => {
 client.on('ready', () => {
   setGameMessage('Appreciating Kat');
   console.log('KatBot is online');
+  DragonSword.startGame();
 });
 
 client.on('message', message => {

@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const EmbedConsts = require('../constants/embeds');
+const LevelConsts = require('../constants/level-consts');
 
 function createEmbed(embedOpts) {
   const { image, fields, title } = embedOpts;
@@ -15,4 +16,8 @@ function createEmbed(embedOpts) {
   return embed;
 }
 
-module.exports = { createEmbed };
+function getUserRank(xp) {
+  return LevelConsts.ranks.find(rank => xp < rank.maxXP);
+}
+
+module.exports = { createEmbed, getUserRank };

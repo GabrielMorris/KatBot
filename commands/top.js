@@ -5,7 +5,7 @@ exports.run = (client, message, args) => {
 
   Level.find({ guildID })
     .sort({ experience: -1 })
-    .limit(10)
+    .limit(30)
     .then(levelDocs => {
       const topArray = levelDocs.map(
         (doc, index) => `${index + 1}. <@${doc.memberID}> - ${doc.experience}xp`

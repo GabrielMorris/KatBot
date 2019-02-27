@@ -1,11 +1,11 @@
 exports.run = (client, message, args) => {
   const LevelSystem = require('../fun/level-system')();
   const LevelConsts = require('../constants/level-consts');
-  const { createEmbed } = require('../utils/utils');
+  const { createEmbed, getUserRank } = require('../utils/utils');
 
   if (args.find(arg => arg.toLowerCase() === 'ranks')) {
     const ranks = LevelConsts.ranks.map(
-      rank => `Rank: **${rank.name}** - Level up at: **${rank.maxXP}xp**`
+      rank => `Rank: **${rank.name}** - LVL UP: **${rank.maxXP}xp**`
     );
 
     const embedOpts = {
@@ -37,10 +37,6 @@ exports.run = (client, message, args) => {
   // Loop over every mention and send a rank embed
   message.mentions.users.forEach(user => _sendRankEmbed(user, message));
 
-  function _getUserRank(xp) {
-    return LevelConsts.ranks.find(rank => xp < rank.maxXP);
-  }
-
   function _sendRankEmbed(user, message) {
     LevelSystem.getUserExperience(user.id, message.guild.id).then(xp => {
       // If no XP from a MongoDoc send a message saying that user has no XP
@@ -53,7 +49,7 @@ exports.run = (client, message, args) => {
       }
 
       // Get the user's rank based on XP
-      const rank = _getUserRank(xp);
+      const rank = getUserRank(xp);
 
       const embedOpts = {
         image: 'rank',
