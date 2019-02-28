@@ -14,7 +14,9 @@ module.exports = function DragonSword(client) {
       gameChannels.forEach(channel => {
         const discordChannel = client.channels.get(channel);
 
-        discordChannel.send('You are now playing **DRAGON SWORD**!');
+        discordChannel.send(
+          'You are now playing **DRAGON SWORD**!\n`,attack` to fight!'
+        );
 
         Game.findOne({ guildID: discordChannel.guild.id })
           .then(gameGuildDoc => {
@@ -36,8 +38,6 @@ module.exports = function DragonSword(client) {
     _checkShouldSpawn: function(channel) {
       // Get a random time between 1-5 mins
       const randTime = Math.random() * (300000 + 60000) + 60000;
-
-      console.log('Checking if should spawn in ' + randTime);
 
       // Set a timer, after which we will check the game for the guild and see if the monster is alive
       setTimeout(() => {
