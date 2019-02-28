@@ -23,7 +23,7 @@ function spawner(channel) {
             .setThumbnail('https://i.imgur.com/HEAqOzS.gif')
             .setColor(EmbedConsts.color)
             .addField(
-              '**New monster!!**',
+              '**New monster!**',
               `**${monster.name}** appeared with **${monster.health} HP**`
             );
 
