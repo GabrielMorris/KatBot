@@ -6,8 +6,11 @@ module.exports = function DragonSword(client) {
   const Game = require('../models/game/game');
   const Monster = require('../models/game/monster');
 
+  // Game utils
+  const { spawner } = require('../fun/spawner');
+
   // Channels
-  const gameChannels = ['494574903173971971', '550454349608779777'];
+  const gameChannels = ['550454349608779777']; // '494574903173971971'
 
   return {
     startGame: function() {
@@ -43,7 +46,7 @@ module.exports = function DragonSword(client) {
                   .setThumbnail('https://i.imgur.com/HEAqOzS.gif')
                   .setColor(EmbedConsts.color)
                   .addField(
-                    '**New monster!!**',
+                    '**New monster!**',
                     `**${monster.name}** appeared with **${monster.health} HP**`
                   );
 
@@ -57,8 +60,11 @@ module.exports = function DragonSword(client) {
       });
     },
     _checkShouldSpawn: function(channel) {
+      const randTime = Math.random() * (300000 + 60000) + 60000;
+
+      console.log('Checking if should spawn in ' + randTime);
+
       setTimeout(() => {
-        console.log('Checking for monster status');
         Game.findOne({ guildID: channel.guild.id }).then(gameDoc => {
           if (gameDoc.monsterAlive) {
             // Call this function again
@@ -70,17 +76,52 @@ module.exports = function DragonSword(client) {
 
             if (rand < 50) {
               // Monster sticks around
+              console.log('Monster is staying');
+
+              channel.send(
+                `_The ${
+                  gameDoc.monster.name
+                } glances away from you, as if vying to escape..._`
+              );
               this._checkShouldSpawn(channel);
             } else {
               // Monster flees the field of battle
+              console.log('Monster is fleeing');
+
+              channel.send(
+                `_The ${
+                  gameDoc.monster.name
+                } flees the field of battle as quickly as it came_`
+              );
+
+              gameDoc.monsterAlive = false;
+              gameDoc.monster = null;
+
+              gameDoc.save();
+
+              setTimeout(() => {
+                console.log('Checking if we should spawn');
+                this._checkShouldSpawn(channel);
+              }, 10000);
             }
           } else {
             console.log('Monster dead, call spawner');
 
             // Call spawner
+            setTimeout(() => {
+              console.log('Calling spawner');
+
+              spawner(channel);
+            }, 15000);
+
+            setTimeout(() => {
+              console.log('Checking to see if we should spawn');
+
+              this._checkShouldSpawn(channel);
+            }, 20000);
           }
         });
-      }, 5000);
+      }, randTime);
     }
   };
 };
