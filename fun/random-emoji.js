@@ -1,5 +1,6 @@
 module.exports = function RandomEmoji() {
   const Emoji = require('../models/emoji');
+  const { randomArrayIndex } = require('../utils/utils');
 
   return {
     execute: function(client, message) {
@@ -10,10 +11,8 @@ module.exports = function RandomEmoji() {
           return;
         }
 
-        const randEmoji = Math.floor(Math.random() * emoji.length);
-
         const clientEmoji = client.emojis.find(
-          cliEmoji => cliEmoji.name === emoji[randEmoji].name
+          cliEmoji => cliEmoji.name === emoji[randomArrayIndex(emoji)].name
         );
 
         if (clientEmoji) message.channel.send(clientEmoji.toString());

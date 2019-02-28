@@ -20,4 +20,12 @@ function getUserRank(xp) {
   return LevelConsts.ranks.find(rank => xp < rank.maxXP);
 }
 
-module.exports = { createEmbed, getUserRank };
+function randomMonster(monsterArr) {
+  return monsterArr[Math.floor(Math.random() * monsterArr.length)];
+}
+
+function randomArrayIndex(arr) {
+  return Math.floor(Math.random() * arr.length);
+}
+
+module.exports = { createEmbed, getUserRank, randomMonster, randomArrayIndex };

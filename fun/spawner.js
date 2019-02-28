@@ -1,33 +1,32 @@
-const Discord = require('discord.js');
-
+// Models
 const Game = require('../models/game/game');
 const Monster = require('../models/game/monster');
 
-const EmbedConsts = require('../constants/embeds');
+// Classes
+const MonsterEmbed = require('./monster-embed');
+const MonsterIntro = require('./monster-intro');
+
+// Utils
+const { randomMonster } = require('../utils/utils');
+const { setGameState } = require('../utils/game-utils');
 
 function spawner(channel) {
+  // Retrieve all the monsters from the database
   Monster.find()
     .then(monsters => {
-      // TODO: update this when we have more monsters
-      const monster = monsters[0];
+      // Select a random monster
+      const monster = randomMonster(monsters);
 
+      // Find the game for the guild
       Game.findOne({ guildID: channel.guild.id })
-        .then(gameDoc => {
-          gameDoc.monsterAlive = true;
-          gameDoc.monster = monster;
-
-          gameDoc.save();
-        })
+        .then(gameDoc => setGameState(gameDoc, true, monster))
         .then(() => {
-          const embed = new Discord.RichEmbed()
-            .setThumbnail('https://i.imgur.com/HEAqOzS.gif')
-            .setColor(EmbedConsts.color)
-            .addField(
-              '**New monster!**',
-              `**${monster.name}** appeared with **${monster.health} HP**`
-            );
-
-          channel.send({ embed });
+          // Generate the monster intro
+          MonsterIntro(monster).then(intro => {
+            // Then send the intro and the monster embed to the channel
+            channel.send(intro);
+            channel.send(MonsterEmbed(monster));
+          });
         });
     })
     .catch(err => console.error(err));

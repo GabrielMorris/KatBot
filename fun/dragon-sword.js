@@ -1,16 +1,13 @@
 module.exports = function DragonSword(client) {
-  const Discord = require('discord.js');
-  const EmbedConsts = require('../constants/embeds');
-
   // Models
   const Game = require('../models/game/game');
-  const Monster = require('../models/game/monster');
 
   // Game utils
   const { spawner } = require('../fun/spawner');
+  const { setGameState } = require('../utils/game-utils');
 
   // Channels
-  const gameChannels = ['550454349608779777']; // '494574903173971971'
+  const { gameChannels } = require('../constants/game');
 
   return {
     startGame: function() {
@@ -21,8 +18,6 @@ module.exports = function DragonSword(client) {
 
         Game.findOne({ guildID: discordChannel.guild.id })
           .then(gameGuildDoc => {
-            // console.log(gameGuildDoc);
-
             // If server doesn't have a game doc create one
             if (!gameGuildDoc) {
               Game.create({
@@ -30,54 +25,29 @@ module.exports = function DragonSword(client) {
                 monsterAlive: false
               });
             } else {
-              // Otherwise find a monster
-              Monster.find().then(monsters => {
-                // TODO: update this when we have more monsters
-                // console.log(monsters);
-                const monster = monsters[0];
-
-                // Update game doc with monster
-                gameGuildDoc.monsterAlive = true;
-                gameGuildDoc.monster = monsters[0];
-
-                gameGuildDoc.save();
-
-                const embed = new Discord.RichEmbed()
-                  .setThumbnail('https://i.imgur.com/HEAqOzS.gif')
-                  .setColor(EmbedConsts.color)
-                  .addField(
-                    '**New monster!**',
-                    `**${monster.name}** appeared with **${monster.health} HP**`
-                  );
-
-                discordChannel.send({ embed });
-
-                this._checkShouldSpawn(discordChannel);
-              });
+              // Spawn monster and start spawn checker
+              spawner(discordChannel);
+              this._checkShouldSpawn(discordChannel);
             }
           })
           .catch(err => console.error(err));
       });
     },
     _checkShouldSpawn: function(channel) {
+      // Get a random time between 1-5 mins
       const randTime = Math.random() * (300000 + 60000) + 60000;
 
       console.log('Checking if should spawn in ' + randTime);
 
+      // Set a timer, after which we will check the game for the guild and see if the monster is alive
       setTimeout(() => {
         Game.findOne({ guildID: channel.guild.id }).then(gameDoc => {
+          // If the monster is alive there's a 50/50 chance it will stick around or run away
           if (gameDoc.monsterAlive) {
-            // Call this function again
-            console.log(
-              'Time for monster to run away or call this function again'
-            );
-
             const rand = Math.random() * 100;
 
             if (rand < 50) {
               // Monster sticks around
-              console.log('Monster is staying');
-
               channel.send(
                 `_The ${
                   gameDoc.monster.name
@@ -86,39 +56,24 @@ module.exports = function DragonSword(client) {
               this._checkShouldSpawn(channel);
             } else {
               // Monster flees the field of battle
-              console.log('Monster is fleeing');
-
               channel.send(
                 `_The ${
                   gameDoc.monster.name
                 } flees the field of battle as quickly as it came_`
               );
 
-              gameDoc.monsterAlive = false;
-              gameDoc.monster = null;
+              // Update the MongoDoc
+              setGameState(gameDoc, false);
 
-              gameDoc.save();
-
-              setTimeout(() => {
-                console.log('Checking if we should spawn');
-                this._checkShouldSpawn(channel);
-              }, 10000);
+              // Set a timer for 10 seconds that calls this function again to create an infinite spawn loop
+              setTimeout(() => this._checkShouldSpawn(channel), 10000);
             }
           } else {
-            console.log('Monster dead, call spawner');
+            // If the monster is dead we will call the spawner after a delay and create a new monster
+            setTimeout(() => spawner(channel), 15000);
 
-            // Call spawner
-            setTimeout(() => {
-              console.log('Calling spawner');
-
-              spawner(channel);
-            }, 15000);
-
-            setTimeout(() => {
-              console.log('Checking to see if we should spawn');
-
-              this._checkShouldSpawn(channel);
-            }, 20000);
+            // Set another, longer timer that will call this function again to continue the infinite spawn loop
+            setTimeout(() => this._checkShouldSpawn(channel), 20000);
           }
         });
       }, randTime);

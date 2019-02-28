@@ -1,6 +1,9 @@
 exports.run = (client, message, args) => {
   const Game = require('../models/game/game');
   const Level = require('../models/levels');
+  const MonsterOutro = require('../fun/monster-outro');
+
+  const { setGameState } = require('../utils/game-utils');
 
   // If monster is alive
   Game.findOne({ guildID: message.guild.id }).then(game => {
@@ -22,16 +25,16 @@ exports.run = (client, message, args) => {
 
           levelDoc.save();
         })
+
+        .then(() => {
+          message.channel.send(MonsterOutro(game.monster));
+        })
         .then(() => {
           message.channel.send(
             `${message.author.username} gained: **${game.monster.xpValue}xp**!`
           );
-          // Kill monster in DB
-          game.monsterAlive = false;
-          game.monster = null;
-
-          game.save();
-        });
+        })
+        .then(() => setGameState(game, false));
     } else {
       message.channel.send('There is no monster!');
     }

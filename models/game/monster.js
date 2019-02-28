@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const monsterSchema = new mongoose.Schema({
   name: { type: String, required: true },
   health: { type: Number, required: true },
-  xpValue: { type: Number, required: true }
+  xpValue: { type: Number, required: true },
+  thumbnail: { type: String, required: true },
+  description: { type: String, required: true }
 });
 
 monsterSchema.set('timestamps', true);
