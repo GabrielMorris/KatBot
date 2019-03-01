@@ -3,6 +3,8 @@ exports.run = (client, message, args) => {
 
   if (message.author.id === '278301453620084736') {
     Game.findOne({ guildID: message.guild.id }).then(gameDoc => {
+      console.log(gameDoc);
+
       message.channel.send(
         `Guild: ${gameDoc.guildID}\nAlive: ${gameDoc.monsterAlive}\nMonster:${
           gameDoc.monster

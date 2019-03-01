@@ -7,7 +7,8 @@ exports.run = (client, message, args) => {
     characterSheetEmbed,
     classEmbed,
     helpEmbed,
-    alreadyHasCharacterEmbed
+    alreadyHasCharacterEmbed,
+    guildRankingEmbed
   } = require('../utils/game-utils');
 
   const { channel } = message;
@@ -129,5 +130,16 @@ exports.run = (client, message, args) => {
         return;
       }
     });
+  }
+
+  // Displays server rankings
+  if (args.includes('top')) {
+    Character.find({ guildID: message.guild.id })
+      .sort({ experience: -1 })
+      .then(characters => {
+        const rankingEmbed = guildRankingEmbed(characters);
+
+        channel.send(rankingEmbed);
+      });
   }
 };

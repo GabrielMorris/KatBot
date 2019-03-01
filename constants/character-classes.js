@@ -14,7 +14,7 @@ const classes = [
     growth: {
       HP: 2,
       MP: 0,
-      STR: 2,
+      STR: 3,
       DEF: 2,
       AGI: 1,
       LUCK: 1
@@ -39,7 +39,7 @@ const classes = [
       MP: 0,
       STR: 1,
       DEF: 1,
-      AGI: 2,
+      AGI: 4,
       LUCK: 2
     },
     isMage: false,
@@ -77,7 +77,7 @@ const classes = [
       MP: 10,
       STR: 2,
       DEF: 2,
-      AGI: 1,
+      AGI: 2,
       LUCK: 3
     },
     growth: {
@@ -85,7 +85,7 @@ const classes = [
       MP: 2,
       STR: 1,
       DEF: 1,
-      AGI: 1,
+      AGI: 4,
       LUCK: 1
     },
     isMage: true,
@@ -100,15 +100,15 @@ const classes = [
       MP: 5,
       STR: 4,
       DEF: 3,
-      AGI: 1,
+      AGI: 2,
       LUCK: 7
     },
     growth: {
       HP: 2,
       MP: 2,
-      STR: 2,
+      STR: 3,
       DEF: 1,
-      AGI: 1,
+      AGI: 3,
       LUCK: 2
     },
     isMage: true,

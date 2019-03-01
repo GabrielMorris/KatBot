@@ -36,41 +36,55 @@ exports.run = (client, message, args) => {
           } else {
             const charClass = getCharacterClass(character);
 
+            const { str, agi } = character;
+            const combinedStats = str + agi;
+            const damage = Math.ceil(combinedStats * 0.1);
+
             // Attack monster
             channel.send(
-              combatEmbed(author.username, monster, charClass.thumbnail)
+              combatEmbed(author.username, monster, damage, charClass.thumbnail)
             );
 
-            // Get the character's current level
-            const currentLevel = getCharacterLevel(character);
+            if (game.monster.health - damage <= 0) {
+              // Get the character's current level
+              const currentLevel = getCharacterLevel(character);
 
-            // Reward XP
-            character.experience += monster.xpValue;
+              // Reward XP
+              character.experience += monster.xpValue;
 
-            // Get the level again
-            const newLevel = getCharacterLevel(character);
+              // Get the level again
+              const newLevel = getCharacterLevel(character);
 
-            // If the levels are different they've leveled up
-            if (currentLevel.level !== newLevel.level) {
-              // Get the old/new stats object and level up the character
-              const stats = handleLevelUp(character);
+              // If the levels are different they've leveled up
+              if (currentLevel.level !== newLevel.level) {
+                // Get the old/new stats object and level up the character
+                const stats = handleLevelUp(character);
 
-              // Create and send the level up embed
-              const lvlUpEmbed = levelUpEmbed(
-                currentLevel,
-                newLevel,
-                stats,
-                author.username
-              );
+                // Create and send the level up embed
+                const lvlUpEmbed = levelUpEmbed(
+                  currentLevel,
+                  newLevel,
+                  stats,
+                  author.username
+                );
 
-              channel.send(lvlUpEmbed);
+                channel.send(lvlUpEmbed);
+              }
+
+              // Save the changes to the MongoDoc
+              character.save();
+
+              // Return true so the then statements will execute
+              return true;
+            } else {
+              game.monster.health -= damage;
+
+              // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
+              game.markModified('monster');
+              game.save();
+
+              return false;
             }
-
-            // Save the changes to the MongoDoc
-            character.save();
-
-            // Return true so the then statements will execute
-            return true;
           }
         })
         .then(hasChar => {

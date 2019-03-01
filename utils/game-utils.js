@@ -3,6 +3,7 @@ const EmbedConsts = require('../constants/embeds');
 const levels = require('../constants/levels');
 const classes = require('../constants/character-classes');
 const { capitalizeFirstLetter, randomArrayIndex } = require('../utils/utils');
+const { gameEmbedThumbs } = require('../constants/game');
 const Encounter = require('../models/game/encounter');
 
 /* === STATE MANAGEMENT === */
@@ -35,7 +36,7 @@ function startGameEmbed() {
       text:
         '_Ruin has come to these lands, once opulent and imperial. First the Fall, then the Taint, and now... this is all that remains; oceans of sun-scorched sand, crooked marshes, the crumbling and decaying husks of bustling towns that bustle no more._\n\n_A half-remembered dream led you to these cursed lands, a dream of the DRAGON SWORD. Shall you be the one to undo what has been done?_'
     },
-    'https://i.imgur.com/ASYVh3G.png' // TODO: move this to a constant
+    gameEmbedThumbs.intro
   );
 }
 
@@ -61,6 +62,23 @@ function characterSheetEmbed(character, charClass, username) {
     );
 }
 
+function guildRankingEmbed(characters) {
+  const text = characters
+    .map(character => {
+      return `<@${character.memberID}> - **Level ${
+        getCharacterLevel(character).level
+      } ${capitalizeFirstLetter(character.class)}** - **${
+        character.experience
+      }xp**`;
+    })
+    .join('\n');
+
+  return gameEmbed({
+    title: '**Server Rankings**',
+    text
+  });
+}
+
 function classEmbed(charClass) {
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
@@ -82,7 +100,7 @@ function classEmbed(charClass) {
 function helpEmbed() {
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
-    .setThumbnail('https://i.imgur.com/HGcExwU.png') // TODO: move to constant
+    .setThumbnail(gameEmbedThumbs.help)
     .addField(
       '**Character Creation Help**',
       '`,character help` - displays this message\n`,character list` - lists character classes\n`,character new <class> <pronouns>` - creates new character\n`,character me` - displays your character sheet'
@@ -97,7 +115,7 @@ function noCharacterEmbed() {
       text:
         'You dont have a character - register with `,character new <className> <pronouns>`'
     },
-    'https://i.imgur.com/sn5alk0.png' // TODO: move to constant
+    gameEmbedThumbs.noChar
   );
 }
 
@@ -107,7 +125,7 @@ function alreadyHasCharacterEmbed() {
       title: '**Character exists**',
       text: 'You already have a character!'
     },
-    'https://i.imgur.com/sn5alk0.png' // TODO: move to constant
+    gameEmbedThumbs.hasChar
   );
 }
 
@@ -139,17 +157,19 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
         stats.old.luck
       } -> ${stats.new.luck}**`
     },
-    'https://i.imgur.com/LboqQYh.png'
+    gameEmbedThumbs.levelUp
   );
 }
 
-function combatEmbed(username, monster, thumbnail) {
+function combatEmbed(username, monster, damage, thumbnail) {
+  const dead = monster.health - damage <= 0 ? true : false;
+
   return gameEmbed(
     {
       title: '**COMBAT**',
-      text: `**${username}** hit **${monster.name}** for **${
-        monster.health
-      } HP**, killing it!`
+      text: `**${username}** hit **${monster.name}** for **${damage} HP**, ${
+        dead ? 'killing' : 'wounding'
+      } it!`
     },
     thumbnail
   );
@@ -161,7 +181,7 @@ function xpEmbed(username, xp) {
       title: '**XP SUMMARY**',
       text: `**${username}** gained: **${xp}xp**!`
     },
-    'https://i.imgur.com/LboqQYh.png'
+    gameEmbedThumbs.xp
   );
 }
 
@@ -171,7 +191,7 @@ function combatOutroEmbed(monster) {
       title: '**NARRATIVE**',
       text: monsterOutro(monster)
     },
-    'https://i.imgur.com/IQ4LYIU.png' // TODO: move this into a constant
+    gameEmbedThumbs.combatOut
   );
 }
 
@@ -303,5 +323,6 @@ module.exports = {
   monsterFailsToFlee,
   monsterFlees,
   noCharacterEmbed,
-  alreadyHasCharacterEmbed
+  alreadyHasCharacterEmbed,
+  guildRankingEmbed
 };
