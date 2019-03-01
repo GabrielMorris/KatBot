@@ -24,8 +24,7 @@ function spawner(channel) {
           // Generate the monster intro
           MonsterIntro(monster).then(intro => {
             // Then send the intro and the monster embed to the channel
-            channel.send(intro);
-            channel.send(MonsterEmbed(monster));
+            channel.send(MonsterEmbed(monster, intro));
           });
         });
     })

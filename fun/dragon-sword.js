@@ -4,7 +4,7 @@ module.exports = function DragonSword(client) {
 
   // Game utils
   const { spawner } = require('../fun/spawner');
-  const { setGameState } = require('../utils/game-utils');
+  const { setGameState, gameEmbed } = require('../utils/game-utils');
 
   // Channels
   const { gameChannels } = require('../constants/game');
@@ -14,9 +14,13 @@ module.exports = function DragonSword(client) {
       gameChannels.forEach(channel => {
         const discordChannel = client.channels.get(channel);
 
-        discordChannel.send(
-          'You are now playing **DRAGON SWORD**!\n`,attack` to fight!'
-        );
+        const startGameEmbed = gameEmbed({
+          title: '**DRAGON SWORD**',
+          text:
+            '_Ruin has come to these lands, once opulent and imperial. First the Fall, then the Taint, and now... this is all that remains; oceans of sun-scorched sand, crooked marshes, the crumbling and decaying husks of bustling towns that bustle no more._\n\n_A half-remembered dream led you to these cursed lands, a dream of the DRAGON SWORD. Shall you be the one to undo what has been done?_'
+        });
+
+        discordChannel.send(startGameEmbed);
 
         Game.findOne({ guildID: discordChannel.guild.id })
           .then(gameGuildDoc => {
