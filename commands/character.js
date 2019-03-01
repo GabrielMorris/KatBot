@@ -56,8 +56,8 @@ exports.run = (client, message, args) => {
     }
 
     // Get the class from the class constants and the pronouns the user wants for their character
-    const charClass = classes.find(char => char.name === args[1]);
-    const pronoun = args[2];
+    const charClass = classes.find(char => char.name === args[1].toLowerCase());
+    const pronoun = args[2].toLowerCase();
 
     // Check to see if a user already has a character
     Character.findOne({
