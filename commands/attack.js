@@ -1,40 +1,72 @@
 exports.run = (client, message, args) => {
   const Game = require('../models/game/game');
-  const MonsterOutro = require('../fun/monster-outro');
   const Character = require('../models/game/character');
 
-  const { setGameState, gameEmbed } = require('../utils/game-utils');
+  const {
+    setGameState,
+    getCharacterLevel,
+    handleLevelUp,
+    levelUpEmbed,
+    xpEmbed,
+    combatOutroEmbed,
+    combatEmbed,
+    noCharacterEmbed,
+    getCharacterClass
+  } = require('../utils/game-utils');
+
+  const { channel, guild, author } = message;
 
   // If monster is alive
-  Game.findOne({ guildID: message.guild.id }).then(game => {
+  Game.findOne({ guildID: guild.id }).then(game => {
     if (game && game.monsterAlive) {
+      const { monster } = game;
+
       // See if we have a character on this guild
       Character.findOne({
-        guildID: message.guild.id,
-        memberID: message.author.id
+        guildID: guild.id,
+        memberID: author.id
       })
         .then(character => {
           // If we have no character send a message explaining how to register
           if (!character) {
-            message.channel.send(
-              'You dont have a character - register with `,character new <className> <pronouns>`'
-            );
+            channel.send(noCharacterEmbed());
 
             // Return false so the next then statements dont execute
             return false;
           } else {
-            // Attack monster
-            const combatEmbed = gameEmbed({
-              title: '**Combat**',
-              text: `**${message.author.username}** hit **${
-                game.monster.name
-              }** for **${game.monster.health} HP**, killing it!`
-            });
+            const charClass = getCharacterClass(character);
 
-            message.channel.send(combatEmbed);
+            // Attack monster
+            channel.send(
+              combatEmbed(author.username, monster, charClass.thumbnail)
+            );
+
+            // Get the character's current level
+            const currentLevel = getCharacterLevel(character);
 
             // Reward XP
-            character.experience += game.monster.xpValue;
+            character.experience += monster.xpValue;
+
+            // Get the level again
+            const newLevel = getCharacterLevel(character);
+
+            // If the levels are different they've leveled up
+            if (currentLevel.level !== newLevel.level) {
+              // Get the old/new stats object and level up the character
+              const stats = handleLevelUp(character);
+
+              // Create and send the level up embed
+              const lvlUpEmbed = levelUpEmbed(
+                currentLevel,
+                newLevel,
+                stats,
+                author.username
+              );
+
+              channel.send(lvlUpEmbed);
+            }
+
+            // Save the changes to the MongoDoc
             character.save();
 
             // Return true so the then statements will execute
@@ -44,26 +76,14 @@ exports.run = (client, message, args) => {
         .then(hasChar => {
           if (!hasChar) return hasChar;
 
-          const outroEmbed = gameEmbed({
-            title: '**Narrative**',
-            text: MonsterOutro(game.monster)
-          });
-
-          message.channel.send(outroEmbed);
+          channel.send(combatOutroEmbed(monster));
 
           return true;
         })
         .then(hasChar => {
           if (!hasChar) return hasChar;
 
-          const xpEmbed = gameEmbed({
-            title: '**XP gain**',
-            text: `**${message.author.username}** gained: **${
-              game.monster.xpValue
-            }xp**!`
-          });
-
-          message.channel.send(xpEmbed);
+          channel.send(xpEmbed(author.username, monster.xpValue));
 
           return true;
         })
@@ -73,7 +93,7 @@ exports.run = (client, message, args) => {
           setGameState(game, false);
         });
     } else {
-      message.channel.send('There is no monster!');
+      channel.send('There is no monster!');
     }
   });
 };

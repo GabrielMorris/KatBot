@@ -28,4 +28,14 @@ function randomArrayIndex(arr) {
   return Math.floor(Math.random() * arr.length);
 }
 
-module.exports = { createEmbed, getUserRank, randomMonster, randomArrayIndex };
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+module.exports = {
+  createEmbed,
+  getUserRank,
+  randomMonster,
+  randomArrayIndex,
+  capitalizeFirstLetter
+};

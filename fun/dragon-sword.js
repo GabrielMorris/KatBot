@@ -4,7 +4,11 @@ module.exports = function DragonSword(client) {
 
   // Game utils
   const { spawner } = require('../fun/spawner');
-  const { setGameState, gameEmbed } = require('../utils/game-utils');
+  const {
+    startGameEmbed,
+    monsterFailsToFlee,
+    monsterFlees
+  } = require('../utils/game-utils');
 
   // Channels
   const { gameChannels } = require('../constants/game');
@@ -14,13 +18,7 @@ module.exports = function DragonSword(client) {
       gameChannels.forEach(channel => {
         const discordChannel = client.channels.get(channel);
 
-        const startGameEmbed = gameEmbed({
-          title: '**DRAGON SWORD**',
-          text:
-            '_Ruin has come to these lands, once opulent and imperial. First the Fall, then the Taint, and now... this is all that remains; oceans of sun-scorched sand, crooked marshes, the crumbling and decaying husks of bustling towns that bustle no more._\n\n_A half-remembered dream led you to these cursed lands, a dream of the DRAGON SWORD. Shall you be the one to undo what has been done?_'
-        });
-
-        discordChannel.send(startGameEmbed);
+        discordChannel.send(startGameEmbed());
 
         Game.findOne({ guildID: discordChannel.guild.id })
           .then(gameGuildDoc => {
@@ -52,22 +50,11 @@ module.exports = function DragonSword(client) {
 
             if (rand < 50) {
               // Monster sticks around
-              channel.send(
-                `_The ${
-                  gameDoc.monster.name
-                } glances away from you, as if vying to escape..._`
-              );
+              monsterFailsToFlee(channel, gameDoc.monster);
               this._checkShouldSpawn(channel);
             } else {
               // Monster flees the field of battle
-              channel.send(
-                `_The ${
-                  gameDoc.monster.name
-                } flees the field of battle as quickly as it came_`
-              );
-
-              // Update the MongoDoc
-              setGameState(gameDoc, false);
+              monsterFlees(channel, gameDoc);
 
               // Set a timer for 10 seconds that calls this function again to create an infinite spawn loop
               setTimeout(() => this._checkShouldSpawn(channel), 10000);

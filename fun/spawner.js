@@ -2,13 +2,13 @@
 const Game = require('../models/game/game');
 const Monster = require('../models/game/monster');
 
-// Classes
-const MonsterEmbed = require('./monster-embed');
-const MonsterIntro = require('./monster-intro');
-
 // Utils
 const { randomMonster } = require('../utils/utils');
-const { setGameState } = require('../utils/game-utils');
+const {
+  setGameState,
+  monsterEmbed,
+  monsterIntro
+} = require('../utils/game-utils');
 
 function spawner(channel) {
   // Retrieve all the monsters from the database
@@ -22,9 +22,9 @@ function spawner(channel) {
         .then(gameDoc => setGameState(gameDoc, true, monster))
         .then(() => {
           // Generate the monster intro
-          MonsterIntro(monster).then(intro => {
+          monsterIntro(monster).then(intro => {
             // Then send the intro and the monster embed to the channel
-            channel.send(MonsterEmbed(monster, intro));
+            channel.send(monsterEmbed(monster, intro));
           });
         });
     })
