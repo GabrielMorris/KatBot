@@ -47,9 +47,9 @@ function characterSheetEmbed(character, charClass, username) {
       `**${username.toUpperCase()}**`,
       `**Level**: ${getCharacterLevel(character).level}\n**XP:** ${
         character.experience
-      }\n**Class:** ${charClass.name}\n**Gender:** ${capitalizeFirstLetter(
-        character.pronouns
-      )}`
+      }\n**Class:** ${capitalizeFirstLetter(
+        charClass.name
+      )}\n**Gender:** ${capitalizeFirstLetter(character.pronouns)}`
     )
     .addField(
       '**STATS**',
