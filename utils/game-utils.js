@@ -41,12 +41,15 @@ function startGameEmbed() {
 }
 
 function characterSheetEmbed(character, charClass, username) {
+  const levelObj = getCharacterLevel(character);
+  const stats = calculateStats(character, levelObj);
+
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
     .setThumbnail(charClass.thumbnail)
     .addField(
       `**${username.toUpperCase()}**`,
-      `**Level**: ${getCharacterLevel(character).level}\n**XP:** ${
+      `**Level**: ${levelObj.level}\n**XP:** ${
         character.experience
       }\n**Class:** ${capitalizeFirstLetter(
         charClass.name
@@ -54,11 +57,9 @@ function characterSheetEmbed(character, charClass, username) {
     )
     .addField(
       '**STATS**',
-      `**HP:** ${character.health}\n**MP:** ${character.mana}\n**STR:** ${
-        character.str
-      }\n**DEF:** ${character.def}\n**AGI:** ${character.agi}\n**LUCK:** ${
-        character.luck
-      }`
+      `**HP:** ${stats.HP}\n**MP:** ${stats.MP}\n**STR:** ${
+        stats.STR
+      }\n**DEF:** ${stats.DEF}\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
     );
 }
 
@@ -147,15 +148,15 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
       title: '**LEVEL UP**',
       text: `**${username}'s** level has increased from **${
         currentLevel.level
-      }** to **${newLevel.level}**\n\nHP: **${stats.old.health} -> ${
-        stats.new.health
-      }**\nMP: **${stats.old.mana} -> ${stats.new.mana}**\nSTR: **${
-        stats.old.str
-      } -> ${stats.new.str}**\nDEF: **${stats.old.def} -> ${
-        stats.new.def
-      }**\nAGI: **${stats.old.agi} -> ${stats.new.agi}**\nLUCK: **${
-        stats.old.luck
-      } -> ${stats.new.luck}**`
+      }** to **${newLevel.level}**\n\nHP: **${stats.old.HP} -> ${
+        stats.new.HP
+      }**\nMP: **${stats.old.MP} -> ${stats.new.MP}**\nSTR: **${
+        stats.old.STR
+      } -> ${stats.new.STR}**\nDEF: **${stats.old.DEF} -> ${
+        stats.new.DEF
+      }**\nAGI: **${stats.old.AGI} -> ${stats.new.AGI}**\nLUCK: **${
+        stats.old.LUCK
+      } -> ${stats.new.LUCK}**`
     },
     gameEmbedThumbs.levelUp
   );
@@ -227,33 +228,16 @@ function getCharacterLevel(character) {
   });
 }
 
-function handleLevelUp(character) {
-  const charClass = getCharacterClass(character);
+function handleLevelUp(character, oldLevel, newLevel) {
+  // Calculate the stats for the old and new levels
+  const oldStats = calculateStats(character, oldLevel);
+  const newStats = calculateStats(character, newLevel);
+
+  // Create a stat object with the old and new stats and return it
   const statObj = {
-    old: {
-      health: character.health,
-      mana: character.mana,
-      str: character.str,
-      def: character.def,
-      agi: character.agi,
-      luck: character.luck
-    },
-    new: {}
+    old: oldStats,
+    new: newStats
   };
-
-  character.health += charClass.growth.HP;
-  character.mana += charClass.growth.MP;
-  character.str += charClass.growth.STR;
-  character.def += charClass.growth.DEF;
-  character.agi += charClass.growth.AGI;
-  character.luck += charClass.growth.LUCK;
-
-  statObj.new.health = character.health;
-  statObj.new.mana = character.mana;
-  statObj.new.str = character.str;
-  statObj.new.def = character.def;
-  statObj.new.agi = character.agi;
-  statObj.new.luck = character.luck;
 
   return statObj;
 }
@@ -268,6 +252,26 @@ function getCharacterClass(character) {
   }
 
   return charClass;
+}
+
+function calculateStats(character, levelObj) {
+  // Get the character's class
+  const charClass = classes.find(
+    charClass => charClass.name === character.class
+  );
+  // Deconstruct the level number and base and growth stats for the class
+  const { level } = levelObj;
+  const { base, growth } = charClass;
+
+  // Return the stats modified for level
+  return {
+    HP: base.HP + growth.HP * level,
+    MP: base.MP + growth.MP * level,
+    STR: base.STR + growth.STR * level,
+    DEF: base.DEF + growth.DEF * level,
+    AGI: base.AGI + growth.AGI * level,
+    LUCK: base.LUCK + growth.LUCK * level
+  };
 }
 
 /* === MONSTER NARRATIVE === */
@@ -324,5 +328,6 @@ module.exports = {
   monsterFlees,
   noCharacterEmbed,
   alreadyHasCharacterEmbed,
-  guildRankingEmbed
+  guildRankingEmbed,
+  calculateStats
 };

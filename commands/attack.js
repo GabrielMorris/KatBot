@@ -11,7 +11,8 @@ exports.run = (client, message, args) => {
     combatOutroEmbed,
     combatEmbed,
     noCharacterEmbed,
-    getCharacterClass
+    getCharacterClass,
+    calculateStats
   } = require('../utils/game-utils');
 
   const { channel, guild, author } = message;
@@ -36,8 +37,11 @@ exports.run = (client, message, args) => {
           } else {
             const charClass = getCharacterClass(character);
 
-            const { str, agi } = character;
-            const combinedStats = str + agi;
+            const stats = calculateStats(
+              character,
+              getCharacterLevel(character)
+            );
+            const combinedStats = stats.STR + stats.AGI;
             const damage = Math.ceil(combinedStats * 0.1);
 
             // Attack monster
@@ -58,7 +62,7 @@ exports.run = (client, message, args) => {
               // If the levels are different they've leveled up
               if (currentLevel.level !== newLevel.level) {
                 // Get the old/new stats object and level up the character
-                const stats = handleLevelUp(character);
+                const stats = handleLevelUp(character, currentLevel, newLevel);
 
                 // Create and send the level up embed
                 const lvlUpEmbed = levelUpEmbed(

@@ -8,7 +8,8 @@ exports.run = (client, message, args) => {
     classEmbed,
     helpEmbed,
     alreadyHasCharacterEmbed,
-    guildRankingEmbed
+    guildRankingEmbed,
+    calculateStats
   } = require('../utils/game-utils');
 
   const { channel } = message;
@@ -77,10 +78,6 @@ exports.run = (client, message, args) => {
           experience: 0,
           health: charClass.base.HP,
           mana: charClass.base.MP,
-          str: charClass.base.STR,
-          def: charClass.base.DEF,
-          agi: charClass.base.AGI,
-          luck: charClass.base.LUCK,
           pronouns: pronoun
         })
           .then(character => {
