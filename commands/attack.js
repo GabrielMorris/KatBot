@@ -7,12 +7,13 @@ exports.run = (client, message, args) => {
     getCharacterLevel,
     handleLevelUp,
     levelUpEmbed,
-    xpEmbed,
+    combatRewardEmbed,
     combatOutroEmbed,
     combatEmbed,
     noCharacterEmbed,
     getCharacterClass,
-    calculateStats
+    calculateStats,
+    calculateGoldGain
   } = require('../utils/game-utils');
 
   const { channel, guild, author } = message;
@@ -21,6 +22,8 @@ exports.run = (client, message, args) => {
   Game.findOne({ guildID: guild.id }).then(game => {
     if (game && game.monsterAlive) {
       const { monster } = game;
+      const monsterBaseHealth = game.monster.health;
+      const goldEarned = calculateGoldGain(monsterBaseHealth);
 
       // See if we have a character on this guild
       Character.findOne({
@@ -55,6 +58,9 @@ exports.run = (client, message, args) => {
 
               // Reward XP
               character.experience += monster.xpValue;
+
+              // Reward gold
+              character.gold += goldEarned;
 
               // Get the level again
               const newLevel = getCharacterLevel(character);
@@ -101,7 +107,9 @@ exports.run = (client, message, args) => {
         .then(hasChar => {
           if (!hasChar) return hasChar;
 
-          channel.send(xpEmbed(author.username, monster.xpValue));
+          channel.send(
+            combatRewardEmbed(author.username, monster.xpValue, goldEarned)
+          );
 
           return true;
         })

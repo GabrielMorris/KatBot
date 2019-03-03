@@ -3,7 +3,7 @@ const EmbedConsts = require('../constants/embeds');
 const levels = require('../constants/levels');
 const classes = require('../constants/character-classes');
 const { capitalizeFirstLetter, randomArrayIndex } = require('../utils/utils');
-const { gameEmbedThumbs } = require('../constants/game');
+const { gameEmbedThumbs, goldMultipliers } = require('../constants/game');
 const Encounter = require('../models/game/encounter');
 
 /* === STATE MANAGEMENT === */
@@ -60,17 +60,18 @@ function characterSheetEmbed(character, charClass, username) {
       `**HP:** ${stats.HP}\n**MP:** ${stats.MP}\n**STR:** ${
         stats.STR
       }\n**DEF:** ${stats.DEF}\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
-    );
+    )
+    .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
 
 function guildRankingEmbed(characters) {
   const text = characters
-    .map(character => {
-      return `<@${character.memberID}> - **Level ${
+    .map((character, index) => {
+      return `${index + 1}. <@${character.memberID}> - **Level ${
         getCharacterLevel(character).level
       } ${capitalizeFirstLetter(character.class)}** - **${
         character.experience
-      }xp**`;
+      }xp** - **${character.gold}g**`;
     })
     .join('\n');
 
@@ -176,11 +177,11 @@ function combatEmbed(username, monster, damage, thumbnail) {
   );
 }
 
-function xpEmbed(username, xp) {
+function combatRewardEmbed(username, xp, goldEarned) {
   return gameEmbed(
     {
-      title: '**XP SUMMARY**',
-      text: `**${username}** gained: **${xp}xp**!`
+      title: '**REWARDS**',
+      text: `**${username}** gained **${xp}xp** and earned **${goldEarned} gold**!`
     },
     gameEmbedThumbs.xp
   );
@@ -274,6 +275,25 @@ function calculateStats(character, levelObj) {
   };
 }
 
+function calculateGoldGain(monsterBaseHP) {
+  const randomBonus = Math.ceil(
+    Math.random() * (goldMultipliers.baseGoldRandMult * monsterBaseHP)
+  );
+
+  const randomAwarded = Math.floor(Math.random() * 2);
+
+  const shouldGiveRandom = randomAwarded === 1 ? true : false;
+
+  let goldEarned =
+    Math.ceil(monsterBaseHP * goldMultipliers.baseGoldMult) + randomBonus;
+
+  if (shouldGiveRandom) {
+    goldEarned += randomBonus;
+  }
+
+  return goldEarned;
+}
+
 /* === MONSTER NARRATIVE === */
 function monsterIntro(monster) {
   // Find a random encounter document
@@ -318,7 +338,7 @@ module.exports = {
   monsterIntro,
   monsterOutro,
   levelUpEmbed,
-  xpEmbed,
+  combatRewardEmbed,
   combatOutroEmbed,
   combatEmbed,
   startGameEmbed,
@@ -329,5 +349,6 @@ module.exports = {
   noCharacterEmbed,
   alreadyHasCharacterEmbed,
   guildRankingEmbed,
-  calculateStats
+  calculateStats,
+  calculateGoldGain
 };

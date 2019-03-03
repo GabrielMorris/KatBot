@@ -8,8 +8,7 @@ exports.run = (client, message, args) => {
     classEmbed,
     helpEmbed,
     alreadyHasCharacterEmbed,
-    guildRankingEmbed,
-    calculateStats
+    guildRankingEmbed
   } = require('../utils/game-utils');
 
   const { channel } = message;
@@ -78,7 +77,8 @@ exports.run = (client, message, args) => {
           experience: 0,
           health: charClass.base.HP,
           mana: charClass.base.MP,
-          pronouns: pronoun
+          pronouns: pronoun,
+          gold: 0
         })
           .then(character => {
             // And then after the character is created send an embed with the character sheet to the channel

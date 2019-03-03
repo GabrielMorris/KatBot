@@ -7,7 +7,8 @@ const characterSchema = new mongoose.Schema({
   experience: { type: Number, required: true },
   health: { type: Number, required: true },
   mana: { type: Number, required: true },
-  pronouns: { type: String, required: true }
+  pronouns: { type: String, required: true },
+  gold: { type: Number, required: true }
 });
 
 characterSchema.set('timestamps', true);

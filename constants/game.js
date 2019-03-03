@@ -1,4 +1,8 @@
-const gameChannels = ['550454349608779777', '550563553778728960']; // '494574903173971971'
+const gameChannels = [
+  '550454349608779777',
+  '550563553778728960',
+  '494574903173971971'
+];
 
 const gameEmbedThumbs = {
   intro: 'https://i.imgur.com/b9HZEu2.png',
@@ -10,4 +14,9 @@ const gameEmbedThumbs = {
   combatOut: 'https://i.imgur.com/DGqF0yU.png'
 };
 
-module.exports = { gameChannels, gameEmbedThumbs };
+const goldMultipliers = {
+  baseGoldMult: 0.5,
+  baseGoldRandMult: 0.2
+};
+
+module.exports = { gameChannels, gameEmbedThumbs, goldMultipliers };
