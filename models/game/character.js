@@ -7,10 +7,6 @@ const characterSchema = new mongoose.Schema({
   experience: { type: Number, required: true },
   health: { type: Number, required: true },
   mana: { type: Number, required: true },
-  str: { type: Number, required: true },
-  def: { type: Number, required: true },
-  agi: { type: Number, required: true },
-  luck: { type: Number, required: true },
   pronouns: { type: String, required: true }
 });
 
