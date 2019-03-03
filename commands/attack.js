@@ -23,7 +23,6 @@ exports.run = (client, message, args) => {
     if (game && game.monsterAlive) {
       const { monster } = game;
       const monsterBaseHealth = game.monster.health;
-      const goldEarned = calculateGoldGain(monsterBaseHealth);
 
       // See if we have a character on this guild
       Character.findOne({
@@ -60,6 +59,7 @@ exports.run = (client, message, args) => {
               character.experience += monster.xpValue;
 
               // Reward gold
+              const goldEarned = calculateGoldGain(stats, monsterBaseHealth);
               character.gold += goldEarned;
 
               // Get the level again
@@ -85,7 +85,7 @@ exports.run = (client, message, args) => {
               character.save();
 
               // Return true so the then statements will execute
-              return true;
+              return { goldEarned: goldEarned };
             } else {
               game.monster.health -= damage;
 
@@ -97,15 +97,15 @@ exports.run = (client, message, args) => {
             }
           }
         })
-        .then(hasChar => {
-          if (!hasChar) return hasChar;
+        .then(hasCharObj => {
+          if (!hasCharObj) return hasCharObj;
 
           channel.send(combatOutroEmbed(monster));
 
-          return true;
+          return hasCharObj.goldEarned;
         })
-        .then(hasChar => {
-          if (!hasChar) return hasChar;
+        .then(goldEarned => {
+          if (!goldEarned) return goldEarned;
 
           channel.send(
             combatRewardEmbed(author.username, monster.xpValue, goldEarned)

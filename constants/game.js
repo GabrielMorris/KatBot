@@ -16,7 +16,7 @@ const gameEmbedThumbs = {
 
 const goldMultipliers = {
   baseGoldMult: 0.5,
-  baseGoldRandMult: 0.2
+  baseGoldRandMult: 0.1
 };
 
 module.exports = { gameChannels, gameEmbedThumbs, goldMultipliers };

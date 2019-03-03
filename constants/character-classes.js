@@ -60,10 +60,10 @@ const classes = [
     growth: {
       HP: 2,
       MP: 0,
-      STR: 2,
+      STR: 3,
       DEF: 3,
-      AGI: 2,
-      LUCK: 1
+      AGI: 3,
+      LUCK: 2
     },
     isMage: false,
     description:
@@ -86,7 +86,7 @@ const classes = [
       STR: 1,
       DEF: 1,
       AGI: 4,
-      LUCK: 1
+      LUCK: 2
     },
     isMage: true,
     description:
