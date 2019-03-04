@@ -6,7 +6,8 @@ const monsterSchema = new mongoose.Schema({
   xpValue: { type: Number, required: true },
   thumbnail: { type: String, required: true },
   description: { type: String, required: true },
-  outro: { type: String, required: true }
+  outro: { type: String, required: true },
+  isBoss: { type: Boolean, required: true }
 });
 
 monsterSchema.set('timestamps', true);
