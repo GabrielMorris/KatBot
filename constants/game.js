@@ -15,7 +15,7 @@ const gameEmbedThumbs = {
 };
 
 const goldMultipliers = {
-  baseGoldMult: 0.5,
+  baseGoldMult: 0.2,
   baseGoldRandMult: 0.1
 };
 

@@ -277,17 +277,16 @@ function calculateStats(character, levelObj) {
 }
 
 function calculateGoldGain(stats, monsterBaseHP) {
-  const randomBonus = Math.ceil(
-    Math.random() *
-      (goldMultipliers.baseGoldRandMult * monsterBaseHP + stats.LUCK / 3)
-  );
+  // Calculate gold and luck bonus
+  const multiplierGold = goldMultipliers.baseGoldMult * monsterBaseHP;
+  const luckBonus = stats.LUCK / 4;
+
+  const randomBonus = Math.ceil(Math.random() * (multiplierGold + luckBonus));
 
   const randomAwarded = Math.floor(Math.random() * 2);
-
   const shouldGiveRandom = randomAwarded === 1 ? true : false;
 
-  let goldEarned =
-    Math.ceil(monsterBaseHP * goldMultipliers.baseGoldMult) + randomBonus;
+  let goldEarned = Math.ceil(multiplierGold);
 
   if (shouldGiveRandom) {
     goldEarned += randomBonus;
