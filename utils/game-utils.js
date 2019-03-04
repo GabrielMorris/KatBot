@@ -276,7 +276,6 @@ function calculateStats(character, levelObj) {
 }
 
 function calculateGoldGain(stats, monsterBaseHP) {
-  console.log(stats);
   const randomBonus = Math.ceil(
     Math.random() *
       (goldMultipliers.baseGoldRandMult * monsterBaseHP + stats.LUCK / 3)

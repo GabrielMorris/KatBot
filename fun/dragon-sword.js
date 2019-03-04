@@ -38,8 +38,14 @@ module.exports = function DragonSword(client) {
       });
     },
     _checkShouldSpawn: function(channel) {
-      // Get a random time between 1-5 mins
-      const randTime = Math.random() * (300000 + 60000) + 60000;
+      // Get a random time between 1.5-3 mins
+      const randTime = Math.random() * (210000 - 90000) + 90000;
+
+      console.log(
+        `Checking for spawn in: ${(randTime / 60000).toFixed(2)}min in ${
+          channel.guild.name
+        }`
+      );
 
       // Set a timer, after which we will check the game for the guild and see if the monster is alive
       setTimeout(() => {
