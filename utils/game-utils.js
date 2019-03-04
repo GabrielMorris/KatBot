@@ -42,6 +42,7 @@ function startGameEmbed() {
 
 function characterSheetEmbed(character, charClass, username) {
   const levelObj = getCharacterLevel(character);
+  const nextLevelObj = levels.find(level => level.level > levelObj.level);
   const stats = calculateStats(character, levelObj);
 
   return new Discord.RichEmbed()
@@ -49,8 +50,8 @@ function characterSheetEmbed(character, charClass, username) {
     .setThumbnail(charClass.thumbnail)
     .addField(
       `**${username.toUpperCase()}**`,
-      `**Level**: ${levelObj.level}\n**XP:** ${
-        character.experience
+      `**Level**: ${levelObj.level}\n**XP:** ${character.experience}/${
+        nextLevelObj.threshold
       }\n**Class:** ${capitalizeFirstLetter(
         charClass.name
       )}\n**Gender:** ${capitalizeFirstLetter(character.pronouns)}`
