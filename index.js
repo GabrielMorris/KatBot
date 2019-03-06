@@ -31,7 +31,7 @@ db.once('open', () => {
 
 // Client listeners
 client.on('ready', () => {
-  setGameMessage('Kat Simulator 2019');
+  setGameMessage('DRAGON SWORD');
   console.log('KatBot is online');
   DragonSword.startGame();
 });
