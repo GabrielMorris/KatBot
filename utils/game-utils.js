@@ -32,7 +32,7 @@ function gameEmbed(obj, thumbnail = null) {
 function startGameEmbed() {
   return gameEmbed(
     {
-      title: '⚔️ **DRAGON SWORD** ⚔️',
+      title: '**DRAGON SWORD**',
       text:
         '_Ruin has come to these lands, once opulent and imperial. First the Fall, then the Taint, and now... this is all that remains; oceans of sun-scorched sand, crooked marshes, the crumbling and decaying husks of bustling towns that bustle no more._\n\n_A half-remembered dream led you to these cursed lands, a dream of the DRAGON SWORD. Shall you be the one to undo what has been done?_'
     },
@@ -137,11 +137,11 @@ function monsterEmbed(monster, intro) {
     .setThumbnail(monster.thumbnail)
     .setColor(EmbedConsts.color)
     .addField(
-      '☠️ **NEW MONSTER** ☠️',
+      '**NEW MONSTER**',
       `**${monster.name}** appeared with **${monster.health} HP**`
     )
     .addBlankField()
-    .addField('📕 **NARRATIVE** 📕', intro);
+    .addField('**NARRATIVE**', intro);
 }
 
 function levelUpEmbed(currentLevel, newLevel, stats, username) {
