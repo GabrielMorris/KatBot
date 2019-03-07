@@ -65,6 +65,7 @@ module.exports = function DragonSword(client) {
                   ? true
                   : false;
 
+              // Get a random number 0-100
               const rand = Math.random() * 100;
 
               if (rand < 50 || monsterCantFlee) {
