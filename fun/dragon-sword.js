@@ -53,14 +53,17 @@ module.exports = function DragonSword(client) {
         Game.findOne({ guildID: channel.guild.id }).then(gameDoc => {
           // If the monster is alive there's a 50/50 chance it will stick around or run away
           if (gameDoc.monsterAlive) {
+            // Get the monster template
             Monster.findOne({ name: gameDoc.monster.name }).then(monster => {
+              // Get the monster's initial HP and compare it to the game doc's monster's HP.
+              // If the monster's HP is less than the threshold it won't be able to flee
               const monsterInitHP = monster.health;
               const monsterCantFleeThresholdPercentage = 0.5;
               const monsterCantFlee =
                 gameDoc.monster.health / monsterInitHP <
                 monsterCantFleeThresholdPercentage
-                  ? false
-                  : true;
+                  ? true
+                  : false;
 
               const rand = Math.random() * 100;
 
