@@ -1,6 +1,7 @@
 module.exports = function DragonSword(client) {
   // Models
   const Game = require('../models/game/game');
+  const Monster = require('../models/game/monster');
 
   // Game utils
   const { spawner } = require('../fun/spawner');
@@ -52,19 +53,29 @@ module.exports = function DragonSword(client) {
         Game.findOne({ guildID: channel.guild.id }).then(gameDoc => {
           // If the monster is alive there's a 50/50 chance it will stick around or run away
           if (gameDoc.monsterAlive) {
-            const rand = Math.random() * 100;
+            Monster.findOne({ name: gameDoc.monster.name }).then(monster => {
+              const monsterInitHP = monster.health;
+              const monsterCantFleeThresholdPercentage = 0.5;
+              const monsterCantFlee =
+                gameDoc.monster.health / monsterInitHP <
+                monsterCantFleeThresholdPercentage
+                  ? false
+                  : true;
 
-            if (rand < 50) {
-              // Monster sticks around
-              monsterFailsToFlee(channel, gameDoc.monster);
-              this._checkShouldSpawn(channel);
-            } else {
-              // Monster flees the field of battle
-              monsterFlees(channel, gameDoc);
+              const rand = Math.random() * 100;
 
-              // Set a timer for 10 seconds that calls this function again to create an infinite spawn loop
-              setTimeout(() => this._checkShouldSpawn(channel), 10000);
-            }
+              if (rand < 50 || monsterCantFlee) {
+                // Monster sticks around
+                monsterFailsToFlee(channel, gameDoc.monster);
+                this._checkShouldSpawn(channel);
+              } else {
+                // Monster flees the field of battle
+                monsterFlees(channel, gameDoc);
+
+                // Set a timer for 10 seconds that calls this function again to create an infinite spawn loop
+                setTimeout(() => this._checkShouldSpawn(channel), 10000);
+              }
+            });
           } else {
             // If the monster is dead we will call the spawner after a delay and create a new monster
             setTimeout(() => spawner(channel), 15000);
