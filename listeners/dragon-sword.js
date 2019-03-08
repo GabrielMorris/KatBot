@@ -6,7 +6,7 @@ module.exports = function DragonSword(client) {
   const Monster = require('../models/game/monster');
 
   // Game utils
-  const { spawner } = require('../fun/spawner');
+  const { spawner } = require('../dragon-sword/spawner');
   const {
     monsterFailsToFlee,
     monsterFlees

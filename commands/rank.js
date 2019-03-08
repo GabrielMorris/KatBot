@@ -1,5 +1,5 @@
 exports.run = (client, message, args) => {
-  const LevelSystem = require('../fun/level-system')();
+  const LevelSystem = require('../listeners/level-system')();
   const LevelConsts = require('../constants/level-consts');
   const { createEmbed, getUserRank } = require('../utils/utils');
 

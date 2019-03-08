@@ -4,9 +4,9 @@ const client = new Discord.Client();
 const random = require('random');
 const CommandSystem = require('./command-system')();
 const mongoose = require('mongoose');
-const RandomEmoji = require('./fun/random-emoji')();
-const LevelSystem = require('./fun/level-system')();
-const DragonSword = require('./fun/dragon-sword')(client);
+const RandomEmoji = require('./listeners/random-emoji')();
+const LevelSystem = require('./listeners/level-system')();
+const DragonSword = require('./listeners/dragon-sword')(client);
 
 // Mongo connection
 mongoose.connect('mongodb://ds151805.mlab.com:51805/katia_boticata', {

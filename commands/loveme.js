@@ -1,5 +1,5 @@
 exports.run = (client, message, args) => {
-  const RandomEmoji = require('../fun/random-emoji')();
+  const RandomEmoji = require('../listeners/random-emoji')();
 
   RandomEmoji.execute(client, message);
 };
