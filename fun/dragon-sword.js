@@ -1,4 +1,6 @@
 module.exports = function DragonSword(client) {
+  const random = require('random');
+
   // Models
   const Game = require('../models/game/game');
   const Monster = require('../models/game/monster');
@@ -40,7 +42,7 @@ module.exports = function DragonSword(client) {
     },
     _checkShouldSpawn: function(channel) {
       // Get a random time between 1.5-3 mins
-      const randTime = Math.random() * (210000 - 90000) + 90000;
+      const randTime = random.int(90000, 210000);
 
       console.log(
         `Checking for spawn in: ${(randTime / 60000).toFixed(2)}min in ${
@@ -65,8 +67,8 @@ module.exports = function DragonSword(client) {
                   ? true
                   : false;
 
-              // Get a random number 0-100
-              const rand = Math.random() * 100;
+              // Get a random number 0-99
+              const rand = random.int(0, 99);
 
               if (rand < 50 || monsterCantFlee) {
                 // Monster sticks around

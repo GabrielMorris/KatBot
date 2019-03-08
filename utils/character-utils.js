@@ -1,3 +1,5 @@
+const random = require('random');
+
 const levels = require('../constants/levels');
 const classes = require('../constants/character-classes');
 const { goldMultipliers } = require('../constants/game');
@@ -65,10 +67,8 @@ function calculateGoldGain(stats, monsterBaseHP) {
   const multiplierGold = goldMultipliers.baseGoldMult * monsterBaseHP;
   const luckBonus = stats.LUCK / 4;
 
-  const randomBonus = Math.ceil(Math.random() * (multiplierGold + luckBonus));
-
-  const randomAwarded = Math.floor(Math.random() * 2);
-  const shouldGiveRandom = randomAwarded === 1 ? true : false;
+  const randomBonus = Math.ceil(random.float() * (multiplierGold + luckBonus));
+  const shouldGiveRandom = random.int(0, 1) === 1 ? true : false;
 
   let goldEarned = Math.ceil(multiplierGold);
 

@@ -1,5 +1,4 @@
 exports.run = (client, message, args) => {
-  const random = require('random');
   const Game = require('../models/game/game');
   const Character = require('../models/game/character');
 

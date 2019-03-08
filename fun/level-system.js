@@ -1,4 +1,6 @@
 module.exports = function LevelSystem() {
+  const random = require('random');
+
   const Level = require('../models/levels');
   const LevelConsts = require('../constants/level-consts');
   const { getUserRank } = require('../utils/utils');
@@ -12,7 +14,7 @@ module.exports = function LevelSystem() {
             // Get the length of the message and then generate a random amount of XP for the user between 1-100xp
             const messageLength = message.content.length;
             const randExp = Math.ceil(
-              Math.random() * (messageLength * LevelConsts.xpMultiplier)
+              random.float() * (messageLength * LevelConsts.xpMultiplier)
             );
             const calculatedXP = _calculateXP(randExp);
 

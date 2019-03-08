@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const random = require('random');
 const EmbedConsts = require('../constants/embeds');
 const LevelConsts = require('../constants/level-consts');
 
@@ -21,11 +22,11 @@ function getUserRank(xp) {
 }
 
 function randomMonster(monsterArr) {
-  return monsterArr[Math.floor(Math.random() * monsterArr.length)];
+  return monsterArr[Math.floor(random.float() * monsterArr.length)];
 }
 
 function randomArrayIndex(arr) {
-  return Math.floor(Math.random() * arr.length);
+  return Math.floor(random.float() * arr.length);
 }
 
 function capitalizeFirstLetter(string) {

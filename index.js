@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const random = require('random');
 const CommandSystem = require('./command-system')();
 const mongoose = require('mongoose');
 const RandomEmoji = require('./fun/random-emoji')();
@@ -43,7 +44,7 @@ client.on('message', message => {
   CommandSystem.execute(client, message);
   LevelSystem.execute(message);
 
-  const rand = Math.floor(Math.random() * 199);
+  const rand = Math.floor(random.float() * 199);
 
   // If random number <2 send a random Kat emoji
   if (rand < 2) {
