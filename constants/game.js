@@ -1,8 +1,4 @@
-const gameChannels = [
-  '550454349608779777',
-  '550563553778728960',
-  '494574903173971971'
-];
+const gameChannels = ['550454349608779777', '494574903173971971'];
 
 const gameEmbedThumbs = {
   intro: 'https://i.imgur.com/b9HZEu2.png',
