@@ -21,10 +21,6 @@ function monsterIntro(monster) {
     .catch(err => console.error(err));
 }
 
-function monsterOutro(monster) {
-  return `_${monster.outro}_`;
-}
-
 function monsterFailsToFlee(channel, monster) {
   channel.send(monsterFailFleeEmbed(monster.name, monster.thumbnail));
 }
@@ -39,7 +35,6 @@ function monsterFlees(channel, gameDoc) {
 
 module.exports = {
   monsterIntro,
-  monsterOutro,
   monsterFailsToFlee,
   monsterFlees
 };

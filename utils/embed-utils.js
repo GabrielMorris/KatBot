@@ -4,7 +4,6 @@ const levels = require('../constants/levels');
 const { capitalizeFirstLetter } = require('../utils/utils');
 const { gameEmbedThumbs } = require('../constants/game');
 const { getCharacterLevel, calculateStats } = require('./character-utils');
-const { monsterOutro } = require('./narrative-utils');
 
 /* === EMBED CLASSES === */
 // Creates a simple embed with only a single field
@@ -183,7 +182,7 @@ function combatOutroEmbed(monster) {
   return gameEmbed(
     {
       title: '**NARRATIVE**',
-      text: monsterOutro(monster)
+      text: `_${monster.outro}_`
     },
     gameEmbedThumbs.combatOut
   );
