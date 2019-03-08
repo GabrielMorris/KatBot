@@ -15,6 +15,21 @@ function calculateHitChance(stats) {
   return hitChance;
 }
 
+function calculateFlatHitChance(stats) {
+  // 0.3-0.5 random base range
+  const baseHitChance = 0.3;
+  // Formula: STR * 0.25 + AGI * 0.5 / 100 TODO: move to constant
+  const charHitChanceBonus = (stats.STR * 0.25 + stats.AGI * 0.5) / 100;
+
+  // Cap hit rate to 90%
+  const hitChance =
+    baseHitChance + charHitChanceBonus > 0.9
+      ? 0.9
+      : (baseHitChance + charHitChanceBonus).toFixed(2);
+
+  return hitChance;
+}
+
 // Roll die 0-1
 function rollDie() {
   return random.float();
@@ -44,4 +59,10 @@ function attackDamage(combinedStats) {
     : Math.ceil(combinedStats * 0.1) - damageRand;
 }
 
-module.exports = { calculateHitChance, rollDie, wasHit, attackDamage };
+module.exports = {
+  calculateHitChance,
+  rollDie,
+  wasHit,
+  attackDamage,
+  calculateFlatHitChance
+};

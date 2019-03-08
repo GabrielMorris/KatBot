@@ -4,6 +4,7 @@ const levels = require('../constants/levels');
 const { capitalizeFirstLetter } = require('../utils/utils');
 const { gameEmbedThumbs } = require('../constants/game');
 const { getCharacterLevel, calculateStats } = require('./character-utils');
+const { calculateFlatHitChance } = require('./combat-utils');
 
 /* === EMBED CLASSES === */
 // Creates a simple embed with only a single field
@@ -34,6 +35,7 @@ function characterSheetEmbed(character, charClass, username) {
   const levelObj = getCharacterLevel(character);
   const nextLevelObj = levels.find(level => level.level > levelObj.level);
   const stats = calculateStats(character, levelObj);
+  const hitChance = calculateFlatHitChance(stats);
 
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
@@ -48,9 +50,10 @@ function characterSheetEmbed(character, charClass, username) {
     )
     .addField(
       '**STATS**',
-      `**HP:** ${stats.HP}\n**MP:** ${stats.MP}\n**STR:** ${
-        stats.STR
-      }\n**DEF:** ${stats.DEF}\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
+      `**HP:** ${stats.HP}\n**MP:** ${stats.MP}\n**HIT:** ${hitChance *
+        100}%\n**STR:** ${stats.STR}\n**DEF:** ${stats.DEF}\n**AGI:** ${
+        stats.AGI
+      }\n**LUCK:** ${stats.AGI}`
     )
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
