@@ -55,14 +55,15 @@ function characterSheetEmbed(character, charClass, username) {
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
 
+// TODO: need to make sure we don't exceed 1024 char embed field limit
 function guildRankingEmbed(characters) {
   const text = characters
     .map((character, index) => {
-      return `${index + 1}. <@${character.memberID}> - **Level ${
+      return `${index + 1}. <@${character.memberID}> - **LVL ${
         getCharacterLevel(character).level
       } ${capitalizeFirstLetter(character.class)}** - **${
         character.experience
-      }xp** - **${character.gold}g**`;
+      }xp**`;
     })
     .join('\n');
 
