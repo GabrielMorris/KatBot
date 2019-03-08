@@ -1,19 +1,10 @@
 const Discord = require('discord.js');
 const EmbedConsts = require('../constants/embeds');
 const levels = require('../constants/levels');
-const classes = require('../constants/character-classes');
-const { capitalizeFirstLetter, randomArrayIndex } = require('../utils/utils');
-const { gameEmbedThumbs, goldMultipliers } = require('../constants/game');
-const Encounter = require('../models/game/encounter');
-
-/* === STATE MANAGEMENT === */
-// Sets the game state in Mongo
-function setGameState(game, bool, monster = null) {
-  game.monsterAlive = bool;
-  game.monster = monster;
-
-  game.save();
-}
+const { capitalizeFirstLetter } = require('../utils/utils');
+const { gameEmbedThumbs } = require('../constants/game');
+const { getCharacterLevel, calculateStats } = require('./character-utils');
+const { monsterOutro } = require('./narrative-utils');
 
 /* === EMBED CLASSES === */
 // Creates a simple embed with only a single field
@@ -218,138 +209,20 @@ function monsterFleeSuccessEmbed(name, thumbnail) {
   );
 }
 
-/* === CHARACTER === */
-function getCharacterLevel(character) {
-  return levels.find((level, index) => {
-    if (
-      character.experience >= level.threshold &&
-      character.experience < levels[index + 1].threshold
-    ) {
-      return true;
-    }
-  });
-}
-
-function handleLevelUp(character, oldLevel, newLevel) {
-  // Calculate the stats for the old and new levels
-  const oldStats = calculateStats(character, oldLevel);
-  const newStats = calculateStats(character, newLevel);
-
-  // Create a stat object with the old and new stats and return it
-  const statObj = {
-    old: oldStats,
-    new: newStats
-  };
-
-  return statObj;
-}
-
-function getCharacterClass(character) {
-  const charClass = classes.find(
-    charClass => charClass.name === character.class
-  );
-
-  if (!charClass) {
-    throw new Error('No character class found');
-  }
-
-  return charClass;
-}
-
-function calculateStats(character, levelObj) {
-  // Get the character's class
-  const charClass = classes.find(
-    charClass => charClass.name === character.class
-  );
-  // Deconstruct the level number and base and growth stats for the class
-  const { level } = levelObj;
-  const { base, growth } = charClass;
-
-  // Return the stats modified for level
-  return {
-    HP: base.HP + growth.HP * level,
-    MP: base.MP + growth.MP * level,
-    STR: base.STR + growth.STR * level,
-    DEF: base.DEF + growth.DEF * level,
-    AGI: base.AGI + growth.AGI * level,
-    LUCK: base.LUCK + growth.LUCK * level
-  };
-}
-
-function calculateGoldGain(stats, monsterBaseHP) {
-  // Calculate gold and luck bonus
-  const multiplierGold = goldMultipliers.baseGoldMult * monsterBaseHP;
-  const luckBonus = stats.LUCK / 4;
-
-  const randomBonus = Math.ceil(Math.random() * (multiplierGold + luckBonus));
-
-  const randomAwarded = Math.floor(Math.random() * 2);
-  const shouldGiveRandom = randomAwarded === 1 ? true : false;
-
-  let goldEarned = Math.ceil(multiplierGold);
-
-  if (shouldGiveRandom) {
-    goldEarned += randomBonus;
-  }
-
-  return goldEarned;
-}
-
-/* === MONSTER NARRATIVE === */
-function monsterIntro(monster) {
-  // Find a random encounter document
-  return Encounter.find()
-    .then(encounters => {
-      // Replace the monster and description in the encounter doc with the monster name and description
-      const encounter = encounters[randomArrayIndex(encounters)].text
-        .replace('$MONSTER', monster.name)
-        .replace('$DESCRIPTION', monster.description);
-
-      return `_${encounter}_`;
-    })
-    .catch(err => console.error(err));
-}
-
-function monsterOutro(monster) {
-  return `_${monster.outro}_`;
-}
-
-function monsterFailsToFlee(channel, monster) {
-  channel.send(monsterFailFleeEmbed(monster.name, monster.thumbnail));
-}
-
-function monsterFlees(channel, gameDoc) {
-  channel.send(
-    monsterFleeSuccessEmbed(gameDoc.monster.name, gameDoc.monster.thumbnail)
-  );
-
-  setGameState(gameDoc, false);
-}
-
 module.exports = {
-  setGameState,
   gameEmbed,
-  getCharacterLevel,
-  getCharacterClass,
-  handleLevelUp,
+  startGameEmbed,
   characterSheetEmbed,
+  guildRankingEmbed,
   classEmbed,
   helpEmbed,
-  monsterEmbed,
-  monsterIntro,
-  monsterOutro,
-  levelUpEmbed,
-  combatRewardEmbed,
-  combatOutroEmbed,
-  combatEmbed,
-  startGameEmbed,
-  monsterFailFleeEmbed,
-  monsterFleeSuccessEmbed,
-  monsterFailsToFlee,
-  monsterFlees,
   noCharacterEmbed,
   alreadyHasCharacterEmbed,
-  guildRankingEmbed,
-  calculateStats,
-  calculateGoldGain
+  monsterEmbed,
+  levelUpEmbed,
+  combatEmbed,
+  combatRewardEmbed,
+  combatOutroEmbed,
+  monsterFailFleeEmbed,
+  monsterFleeSuccessEmbed
 };

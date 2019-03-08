@@ -6,10 +6,10 @@ exports.run = (client, message, args) => {
   const {
     characterSheetEmbed,
     classEmbed,
-    helpEmbed,
     alreadyHasCharacterEmbed,
-    guildRankingEmbed
-  } = require('../utils/game-utils');
+    guildRankingEmbed,
+    helpEmbed
+  } = require('../utils/embed-utils');
 
   const { channel } = message;
 

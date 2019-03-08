@@ -4,11 +4,9 @@ const Monster = require('../models/game/monster');
 
 // Utils
 const { randomMonster } = require('../utils/utils');
-const {
-  setGameState,
-  monsterEmbed,
-  monsterIntro
-} = require('../utils/game-utils');
+const { setGameState } = require('../utils/state-utils');
+const { monsterIntro } = require('../utils/narrative-utils');
+const { monsterEmbed } = require('../utils/embed-utils');
 
 function spawner(channel) {
   // Retrieve all the monsters from the database

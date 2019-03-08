@@ -2,19 +2,21 @@ exports.run = (client, message, args) => {
   const Game = require('../models/game/game');
   const Character = require('../models/game/character');
 
+  const { setGameState } = require('../utils/state-utils');
   const {
-    setGameState,
+    getCharacterClass,
     getCharacterLevel,
     handleLevelUp,
+    calculateStats,
+    calculateGoldGain
+  } = require('../utils/character-utils');
+  const {
     levelUpEmbed,
     combatRewardEmbed,
     combatOutroEmbed,
     combatEmbed,
-    noCharacterEmbed,
-    getCharacterClass,
-    calculateStats,
-    calculateGoldGain
-  } = require('../utils/game-utils');
+    noCharacterEmbed
+  } = require('../utils/embed-utils');
 
   const { channel, guild, author } = message;
 

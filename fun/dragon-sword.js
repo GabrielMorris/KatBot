@@ -6,10 +6,10 @@ module.exports = function DragonSword(client) {
   // Game utils
   const { spawner } = require('../fun/spawner');
   const {
-    startGameEmbed,
     monsterFailsToFlee,
     monsterFlees
-  } = require('../utils/game-utils');
+  } = require('../utils/narrative-utils');
+  const { startGameEmbed } = require('../utils/embed-utils');
 
   // Channels
   const { gameChannels } = require('../constants/game');
