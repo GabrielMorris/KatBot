@@ -1,4 +1,5 @@
 exports.run = (client, message, args) => {
+  const random = require('random');
   const Game = require('../models/game/game');
   const Character = require('../models/game/character');
 
@@ -17,6 +18,12 @@ exports.run = (client, message, args) => {
     combatEmbed,
     noCharacterEmbed
   } = require('../utils/embed-utils');
+  const {
+    calculateHitChance,
+    rollDie,
+    wasHit,
+    attackDamage
+  } = require('../utils/combat-utils');
 
   const { channel, guild, author } = message;
 
@@ -46,14 +53,25 @@ exports.run = (client, message, args) => {
               getCharacterLevel(character)
             );
             const combinedStats = stats.STR + stats.AGI;
-            const damage = Math.ceil(combinedStats * 0.1);
+
+            // Calculate hit chance and damage
+            const hitChance = calculateHitChance(stats);
+            const dieRoll = rollDie();
+            const hitsEnemy = wasHit(hitChance, dieRoll);
+            const damage = attackDamage(combinedStats);
 
             // Attack monster
             channel.send(
-              combatEmbed(author.username, monster, damage, charClass.thumbnail)
+              combatEmbed(
+                author.username,
+                monster,
+                hitsEnemy ? damage : 0,
+                charClass.thumbnail
+              )
             );
 
-            if (game.monster.health - damage <= 0) {
+            // If we hit the enemy and monster health is <= 0
+            if (hitsEnemy && game.monster.health - damage <= 0) {
               // Get the character's current level
               const currentLevel = getCharacterLevel(character);
 
@@ -89,6 +107,9 @@ exports.run = (client, message, args) => {
               // Return true so the then statements will execute
               return { goldEarned: goldEarned };
             } else {
+              // If player did no damage return so we don't make an extra DB query
+              if (!hitsEnemy || damage === 0) return false;
+
               game.monster.health -= damage;
 
               // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
