@@ -56,6 +56,7 @@ exports.run = (client, message, args) => {
             // Calculate hit chance and damage
             const hitChance = calculateHitChance(stats);
             const dieRoll = rollDie();
+            console.log(`Hit: ${hitChance} | Die: ${dieRoll}`);
             const hitsEnemy = wasHit(hitChance, dieRoll);
             const damage = attackDamage(combinedStats);
 
