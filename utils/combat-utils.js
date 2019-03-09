@@ -37,7 +37,7 @@ function rollDie() {
 
 // Returns true if hit > die roll
 function wasHit(hitChance, dieRoll) {
-  return hitChance > dieRoll;
+  return hitChance >= dieRoll;
 }
 
 // Returns positive or negative based on chance
