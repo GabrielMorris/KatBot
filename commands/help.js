@@ -22,11 +22,6 @@ exports.run = (client, message, args) => {
           "Changes Kat's name to the specified string, which has a maximum length of 32 characters per Discord name policy."
       },
       {
-        name: '**,katcase <string>**',
-        value:
-          'Sends a message to the channel with the provided string in KATCASE!'
-      },
-      {
         name: '**,memes**',
         value:
           'Lists all currently available Kat memes for your endless entertainment.'
