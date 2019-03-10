@@ -27,7 +27,7 @@ const classes = [
   {
     name: 'gunslinger',
     base: {
-      HP: 3,
+      HP: 5,
       MP: 0,
       STR: 6,
       DEF: 2,
@@ -73,7 +73,7 @@ const classes = [
   {
     name: 'pyromancer',
     base: {
-      HP: 3,
+      HP: 5,
       MP: 10,
       STR: 2,
       DEF: 2,
@@ -96,7 +96,7 @@ const classes = [
   {
     name: 'cleric',
     base: {
-      HP: 6,
+      HP: 5,
       MP: 5,
       STR: 4,
       DEF: 3,
