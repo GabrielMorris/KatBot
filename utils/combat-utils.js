@@ -32,7 +32,7 @@ function calculateFlatHitChance(stats) {
 
 // Roll die 0-1
 function rollDie() {
-  return random.float(0, 0.9);
+  return random.float(0, 1);
 }
 
 // Returns true if hit > die roll

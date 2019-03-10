@@ -11,6 +11,12 @@ exports.run = (client, message, args) => {
     helpEmbed
   } = require('../utils/embed-utils');
 
+  // TODO: move/remove these
+  const {
+    calculateStats,
+    getCharacterLevel
+  } = require('../utils/character-utils');
+
   const { channel } = message;
 
   // Sends help to the channel
@@ -99,6 +105,17 @@ exports.run = (client, message, args) => {
 
   // Display your character sheet
   if (args.includes('me')) {
+    // TODO: Remove this or move to util, resets hp for everyone
+    // Character.find().then(chars => {
+    //   chars.forEach(char => {
+    //     const levelObj = getCharacterLevel(char);
+    //     const stats = calculateStats(char, levelObj);
+
+    //     console.log(stats);
+    //     char.health = stats.HP;
+    //     char.save();
+    //   });
+    // });
     // Check to see if you have a character
     Character.findOne({
       guildID: message.guild.id,

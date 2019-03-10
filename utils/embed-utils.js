@@ -50,10 +50,11 @@ function characterSheetEmbed(character, charClass, username) {
     )
     .addField(
       '**STATS**',
-      `**HP:** ${stats.HP}\n**MP:** ${stats.MP}\n**HIT:** ${hitChance *
-        100}%\n**STR:** ${stats.STR}\n**DEF:** ${stats.DEF}\n**AGI:** ${
-        stats.AGI
-      }\n**LUCK:** ${stats.AGI}`
+      `**HP:** ${character.health}/${stats.HP}\n**MP:** ${
+        stats.MP
+      }\n**HIT:** ${hitChance * 100}%\n**STR:** ${stats.STR}\n**DEF:** ${
+        stats.DEF
+      }\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
     )
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
@@ -177,6 +178,29 @@ function combatEmbed(username, monster, damage, thumbnail) {
   );
 }
 
+function monsterAttackEmbed(username, character, monster, damage) {
+  const dead = character.health - damage === 0 ? true : false;
+  let pronouns;
+
+  if (character.pronouns === 'male') pronouns = 'him';
+  else if (character.pronouns === 'female') pronouns = 'her';
+  else if (character.pronouns === 'neutral') pronouns = 'them';
+
+  const text = `**${
+    monster.name
+  }** attacked **${username}** for **${damage} HP**, ${
+    dead ? 'killing' : 'wounding'
+  } ${pronouns}!`;
+
+  return gameEmbed(
+    {
+      title: '**MONSTER ATTACK**',
+      text
+    },
+    monster.thumbnail
+  );
+}
+
 function combatRewardEmbed(username, xp, goldEarned) {
   return gameEmbed(
     {
@@ -217,6 +241,17 @@ function monsterFleeSuccessEmbed(name, thumbnail) {
   );
 }
 
+function mustRestEmbed(username) {
+  console.log(EmbedConsts.rest);
+  return gameEmbed(
+    {
+      title: '**MORTAL WOUND**',
+      text: `_${username} is mortally wounded and must rest before returning to the fight_`
+    },
+    EmbedConsts.images.rest
+  );
+}
+
 module.exports = {
   gameEmbed,
   startGameEmbed,
@@ -232,5 +267,7 @@ module.exports = {
   combatRewardEmbed,
   combatOutroEmbed,
   monsterFailFleeEmbed,
-  monsterFleeSuccessEmbed
+  monsterFleeSuccessEmbed,
+  mustRestEmbed,
+  monsterAttackEmbed
 };

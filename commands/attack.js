@@ -1,4 +1,7 @@
 exports.run = (client, message, args) => {
+  const random = require('random');
+
+  // Models
   const Game = require('../models/game/game');
   const Character = require('../models/game/character');
 
@@ -15,7 +18,9 @@ exports.run = (client, message, args) => {
     combatRewardEmbed,
     combatOutroEmbed,
     combatEmbed,
-    noCharacterEmbed
+    noCharacterEmbed,
+    mustRestEmbed,
+    monsterAttackEmbed
   } = require('../utils/embed-utils');
   const {
     calculateHitChance,
@@ -43,6 +48,11 @@ exports.run = (client, message, args) => {
             channel.send(noCharacterEmbed());
 
             // Return false so the next then statements dont execute
+            return false;
+          } else if (character.health === 0) {
+            // If character's got no HP send a must rest embed
+            channel.send(mustRestEmbed(author.username));
+
             return false;
           } else {
             const charClass = getCharacterClass(character);
@@ -108,6 +118,34 @@ exports.run = (client, message, args) => {
             } else {
               // If player did no damage return so we don't make an extra DB query
               if (!hitsEnemy || damage === 0) return false;
+
+              const dieRoll = random.float();
+
+              // If roll was less than 0.2 monster will attack
+              if (dieRoll < 1) {
+                // Don't let damage take a character into negative HP
+                const damage =
+                  character.health - game.monster.damage < 0
+                    ? character.health
+                    : game.monster.damage;
+
+                character.health -= damage;
+
+                channel.send(
+                  monsterAttackEmbed(
+                    author.username,
+                    character,
+                    game.monster,
+                    damage
+                  )
+                );
+
+                if (character.health === 0) {
+                  channel.send(mustRestEmbed(author.username));
+                }
+
+                character.save();
+              }
 
               game.monster.health -= damage;
 
