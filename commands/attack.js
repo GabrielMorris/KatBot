@@ -119,6 +119,7 @@ exports.run = (client, message, args) => {
               // If player did no damage return so we don't make an extra DB query
               if (!hitsEnemy || damage === 0) return false;
 
+              // TODO: move this logic to a util
               const dieRoll = random.float();
 
               // If roll was less than 0.2 monster will attack

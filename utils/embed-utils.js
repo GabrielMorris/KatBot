@@ -50,11 +50,11 @@ function characterSheetEmbed(character, charClass, username) {
     )
     .addField(
       '**STATS**',
-      `**HP:** ${character.health}/${stats.HP}\n**MP:** ${
-        stats.MP
-      }\n**HIT:** ${hitChance * 100}%\n**STR:** ${stats.STR}\n**DEF:** ${
-        stats.DEF
-      }\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
+      `**HP:** ${character.health}/${stats.HP} (${Math.floor(
+        (character.health / stats.HP) * 100
+      )}%)\n**MP:** ${stats.MP}\n**HIT:** ${hitChance * 100}%\n**STR:** ${
+        stats.STR
+      }\n**DEF:** ${stats.DEF}\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
     )
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
@@ -242,11 +242,30 @@ function monsterFleeSuccessEmbed(name, thumbnail) {
 }
 
 function mustRestEmbed(username) {
-  console.log(EmbedConsts.rest);
   return gameEmbed(
     {
       title: '**MORTAL WOUND**',
-      text: `_${username} is mortally wounded and must rest before returning to the fight_`
+      text: `**${username}** is mortally wounded and must \`,rest\` before returning to the fight`
+    },
+    EmbedConsts.images.rest
+  );
+}
+
+function restEmbed(username, goldCost) {
+  return gameEmbed(
+    {
+      title: '**REST**',
+      text: `_**${username}** lays down their burdens and rests at a local inn for **${goldCost}g**, restoring their health_`
+    },
+    EmbedConsts.images.rest
+  );
+}
+
+function cantRestEmbed(username) {
+  return gameEmbed(
+    {
+      title: "**CAN'T REST**",
+      text: `**${username}'s** health is over 40% and cannot rest!`
     },
     EmbedConsts.images.rest
   );
@@ -269,5 +288,7 @@ module.exports = {
   monsterFailFleeEmbed,
   monsterFleeSuccessEmbed,
   mustRestEmbed,
-  monsterAttackEmbed
+  monsterAttackEmbed,
+  restEmbed,
+  cantRestEmbed
 };
