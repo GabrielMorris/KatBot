@@ -37,7 +37,16 @@ const levels = [
   { level: 36, threshold: 2850 },
   { level: 37, threshold: 2950 },
   { level: 38, threshold: 3100 },
-  { level: 39, threshold: 3300 }
+  { level: 39, threshold: 3300 },
+  { level: 40, threshold: 3500 },
+  { level: 41, threshold: 3700 },
+  { level: 42, threshold: 3900 },
+  { level: 43, threshold: 4100 },
+  { level: 44, threshold: 4300 },
+  { level: 45, threshold: 4500 },
+  { level: 46, threshold: 4700 },
+  { level: 47, threshold: 4900 },
+  { level: 48, threshold: 5100 }
 ];
 
 module.exports = levels;
