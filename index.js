@@ -1,10 +1,8 @@
 require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const random = require('random');
 const CommandSystem = require('./command-system')();
 const mongoose = require('mongoose');
-const RandomEmoji = require('./listeners/random-emoji')();
 const LevelSystem = require('./listeners/level-system')();
 const DragonSword = require('./listeners/dragon-sword')(client);
 
@@ -43,13 +41,6 @@ client.on('message', message => {
   // Sends the command to the command system
   CommandSystem.execute(client, message);
   LevelSystem.execute(message);
-
-  const rand = Math.floor(random.float() * 199);
-
-  // If random number <2 send a random Kat emoji
-  if (rand < 2) {
-    RandomEmoji.execute(client, message);
-  }
 });
 
 // Sets KatBot's activity
