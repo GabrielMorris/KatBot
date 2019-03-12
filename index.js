@@ -43,6 +43,11 @@ client.on('message', message => {
   LevelSystem.execute(message);
 });
 
+/**
+ * Sets this bot's activity status
+ * @param {String} message Text to set bot's Discord client status to
+ * @returns {undefined}
+ */
 // Sets KatBot's activity
 function setGameMessage(message) {
   if (!message) return;
