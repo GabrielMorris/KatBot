@@ -15,7 +15,7 @@ exports.run = (client, message, args) => {
     const baseStats = calculateStats(character, levelObj);
 
     // If a player's health is 40% or less of the total they can rest
-    if (character.health <= 0.4 * baseStats.HP) {
+    if (character.health <= Math.ceil(0.4 * baseStats.HP)) {
       // Can rest
       const goldCost = Math.floor(character.gold * 0.05);
 
