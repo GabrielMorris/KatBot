@@ -7,8 +7,10 @@ A bot that serves to appreciate the very best of us
 KatBot runs on [node.js](https://nodejs.org) and dependencies can be installed via [npm](https://www.npmjs.com/get-npm)
 
 ```
-npm install
+npm ci
 ```
+
+(Using `npm ci` installs from the package lockfile and ensures that dependencies have consistent versions across environments.)
 
 ### Configuration
 
