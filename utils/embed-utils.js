@@ -282,6 +282,13 @@ function monsterAttackEmbed(username, character, monster, damage) {
   );
 }
 
+/**
+ * Creates an embed displaying combat rewards
+ * @param {String} username Username to fill combat reward information with
+ * @param {Number} xp Number representing rewarded experience
+ * @param {Number} goldEarned Number representing rewarded gold
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with combat reward information
+ */
 function combatRewardEmbed(username, xp, goldEarned) {
   return gameEmbed(
     {
