@@ -58,7 +58,10 @@ function wasHit(hitChance, dieRoll) {
   return hitChance >= dieRoll;
 }
 
-// Returns positive or negative based on chance
+/**
+ * Random chance (50/50) to return either 'positive' or 'negative'
+ * @returns {String} 'positive' or 'negative' randomly
+ */
 function damageType() {
   return random.int(0, 100) < 50 ? 'positive' : 'negative';
 }
