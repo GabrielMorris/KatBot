@@ -17,6 +17,10 @@ module.exports = function DragonSword(client) {
   const { gameChannels } = require('../constants/game');
 
   return {
+/**
+ * Starts game in each Discord TextChannel with an ID listed in game channel constants
+ * @returns {undefined}
+ */
     startGame: function() {
       gameChannels.forEach(channel => {
         const discordChannel = client.channels.get(channel);
@@ -40,7 +44,17 @@ module.exports = function DragonSword(client) {
           .catch(err => console.error(err));
       });
     },
+/**
+ * Once called, periodically checks (by recursively calling itself) whether a new monster should spawn in specified channel
+ * if there is no monster currently alive in the channel, and spawns a new monster if criteria is met;
+ * otherwise, checks whether current monster should flee and triggers an appropriate message in response
+ * @private
+ * @param {Discord.TextChannel} channel Discord text channel to check spawn for
+ * @returns {undefined}
+ */
     _checkShouldSpawn: function(channel) {
+      // this function needs to be refactored into smaller tasks
+
       // Get a random time between 1.5-3 mins
       const randTime = random.int(90000, 210000);
 
