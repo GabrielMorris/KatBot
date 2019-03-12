@@ -7,7 +7,22 @@ const { getCharacterLevel, calculateStats } = require('./character-utils');
 const { calculateFlatHitChance } = require('./combat-utils');
 
 /* === EMBED CLASSES === */
-// Creates a simple embed with only a single field
+/**
+ * Creates simple RichEmbed object with only a single field
+ * @param {Object} obj Embed parameter object
+ * @param {String} obj.title Embed title
+ * @param {String} obj.text Embed text
+ * @param {String|null} [thumbnail=null] URL for embed image thumbnail (optional)
+ * @example
+ * // Creates a simple embed with the title "Sample Game Embed",
+ * // the text "This is sample body text for the embed.",
+ * // and an image thumbnail with the URL 'https://i.imgur.com/xxxxxx2.png'
+ * const opts = {
+ *   title: 'Sample Game Embed',
+ *   text: 'This is sample body text for the embed.'
+ * }
+ * gameEmbed(opts, 'https://i.imgur.com/xxxxxx2.png');
+ */
 function gameEmbed(obj, thumbnail = null) {
   const { title, text } = obj;
 
