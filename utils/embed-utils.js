@@ -36,6 +36,10 @@ function gameEmbed(obj, thumbnail = null) {
   return embed;
 }
 
+/**
+ * Creates an embed for a new game instance
+ * @returns {Discord.RichEmbed} Discord RichEmbed with new game instance information
+ */
 function startGameEmbed() {
   return gameEmbed(
     {
