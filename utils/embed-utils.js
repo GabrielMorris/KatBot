@@ -109,6 +109,11 @@ function guildRankingEmbed(characters) {
   });
 }
 
+/**
+ * Creates an embed representing a character class
+ * @param {Object} charClass Character class object to fill embed with
+ * @returns {Discord.RichEmbed}
+ */
 function classEmbed(charClass) {
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
