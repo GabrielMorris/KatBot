@@ -7,7 +7,23 @@ const { getCharacterLevel, calculateStats } = require('./character-utils');
 const { calculateFlatHitChance } = require('./combat-utils');
 
 /* === EMBED CLASSES === */
-// Creates a simple embed with only a single field
+/**
+ * Creates simple RichEmbed object with only a single field
+ * @param {Object} obj Embed parameter object
+ * @param {String} obj.title Embed title
+ * @param {String} obj.text Embed text
+ * @param {String|null} [thumbnail=null] URL for embed image thumbnail (optional)
+ * @returns {Discord.RichEmbed} Discord RichEmbed built with given parameters
+ * @example
+ * // Creates a simple embed with the title "Sample Game Embed",
+ * // the text "This is sample body text for the embed.",
+ * // and an image thumbnail with the URL 'https://i.imgur.com/xxxxxx2.png'
+ * const opts = {
+ *   title: 'Sample Game Embed',
+ *   text: 'This is sample body text for the embed.'
+ * }
+ * gameEmbed(opts, 'https://i.imgur.com/xxxxxx2.png');
+ */
 function gameEmbed(obj, thumbnail = null) {
   const { title, text } = obj;
 
@@ -20,6 +36,10 @@ function gameEmbed(obj, thumbnail = null) {
   return embed;
 }
 
+/**
+ * Creates an embed for a new game instance
+ * @returns {Discord.RichEmbed} Discord RichEmbed with new game instance information
+ */
 function startGameEmbed() {
   return gameEmbed(
     {
@@ -31,6 +51,13 @@ function startGameEmbed() {
   );
 }
 
+/**
+ * Creates an embed for a character sheet
+ * @param {Character} character Character model to fill sheet with
+ * @param {Object} charClass Character class object to fill sheet with
+ * @param {String} username Username to fill on model sheet
+ * @returns {Discord.RichEmbed} Discord RichEmbed with character sheet information
+ */
 function characterSheetEmbed(character, charClass, username) {
   const levelObj = getCharacterLevel(character);
   const nextLevelObj = levels.find(level => level.level > levelObj.level);
@@ -59,6 +86,11 @@ function characterSheetEmbed(character, charClass, username) {
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
 
+/**
+ * Creates an embed showing rankings for a given set of characters
+ * @param {Array.<Character>} characters Array of character models to fill embed with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with character ranking information
+ */
 // TODO: need to make sure we don't exceed 1024 char embed field limit
 function guildRankingEmbed(characters) {
   const text = characters
@@ -77,6 +109,11 @@ function guildRankingEmbed(characters) {
   });
 }
 
+/**
+ * Creates an embed representing a character class
+ * @param {Object} charClass Character class object to fill embed with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with character class information
+ */
 function classEmbed(charClass) {
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
@@ -95,6 +132,10 @@ function classEmbed(charClass) {
     );
 }
 
+/**
+ * Creates an embed displaying character creation help
+ * @returns {Discord.RichEmbed} Discord RichEmbed displaying character creation help
+ */
 function helpEmbed() {
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
@@ -106,6 +147,10 @@ function helpEmbed() {
     .addField('**Available pronouns**', 'male, female, neutral');
 }
 
+/**
+ * Creates an embed that displays a generic "you have no character" message with registration information
+ * @returns {Discord.RichEmbed} Discord RichEmbed displaying a generic "you have no character" message
+ */
 function noCharacterEmbed() {
   return gameEmbed(
     {
@@ -117,6 +162,10 @@ function noCharacterEmbed() {
   );
 }
 
+/**
+ * Creates an embed that displays a generic "you already have a character" message
+ * @returns {Discord.RichEmbed} Discord RichEmbed displaying a generic "you already have a character" message
+ */
 function alreadyHasCharacterEmbed() {
   return gameEmbed(
     {
@@ -127,6 +176,12 @@ function alreadyHasCharacterEmbed() {
   );
 }
 
+/**
+ * Creates an embed that displays information and narrative about a newly spawned monster
+ * @param {Monster} monster Monster model to fill monster information sheet section with
+ * @param {String} intro Intro narrative text to fill narrative section with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with new monster and narrative information
+ */
 function monsterEmbed(monster, intro) {
   return new Discord.RichEmbed()
     .setThumbnail(monster.thumbnail)
@@ -139,6 +194,16 @@ function monsterEmbed(monster, intro) {
     .addField('**NARRATIVE**', intro);
 }
 
+/**
+ * Creates an embed displaying level up information based on params
+ * @param {Object} currentLevel Level object with information representing the old level
+ * @param {Object} newLevel Level object with information representing the new level
+ * @param {Object} stats
+ * @param {Object} stats.old Object representing character stats at old level
+ * @param {Object} stats.new Object representing character stats at new level
+ * @param {String} username Username to fill level up information with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with level up information
+ */
 function levelUpEmbed(currentLevel, newLevel, stats, username) {
   return gameEmbed(
     {
@@ -159,6 +224,14 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
   );
 }
 
+/**
+ * Creates an embed displaying character-initiated attack information
+ * @param {String} username Username to fill attack information with
+ * @param {Monster} monster Targeted Monster model object to fill attack information with
+ * @param {Number} damage Amount of damage dealt to target
+ * @param {String} thumbnail URL for embed image thumbnail
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with character-initiated attack information
+ */
 function combatEmbed(username, monster, damage, thumbnail) {
   const dead = monster.health - damage <= 0 ? true : false;
 
@@ -178,6 +251,14 @@ function combatEmbed(username, monster, damage, thumbnail) {
   );
 }
 
+/**
+ * Creates an embed displaying monster-initiated attack information
+ * @param {String} username Username to fill attack information with
+ * @param {Character} character Targeted Character model object to fill attack information with
+ * @param {Monster} monster Attacking Monster model object to fill attack information with
+ * @param {Number} damage Amount of damage dealt to target
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster-initiated attack information
+ */
 function monsterAttackEmbed(username, character, monster, damage) {
   const dead = character.health - damage <= 0 ? true : false;
   let pronouns;
@@ -201,6 +282,13 @@ function monsterAttackEmbed(username, character, monster, damage) {
   );
 }
 
+/**
+ * Creates an embed displaying combat rewards
+ * @param {String} username Username to fill combat reward information with
+ * @param {Number} xp Number representing rewarded experience
+ * @param {Number} goldEarned Number representing rewarded gold
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with combat reward information
+ */
 function combatRewardEmbed(username, xp, goldEarned) {
   return gameEmbed(
     {
@@ -211,6 +299,11 @@ function combatRewardEmbed(username, xp, goldEarned) {
   );
 }
 
+/**
+ * Creates an embed displaying combat outro narrative
+ * @param {Monster} monster Monster model object to base outro text upon
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with combat outro narrative
+ */
 function combatOutroEmbed(monster) {
   return gameEmbed(
     {
@@ -221,6 +314,12 @@ function combatOutroEmbed(monster) {
   );
 }
 
+/**
+ * Creates an embed for when a monster fails to flee
+ * @param {String} name Monster's name
+ * @param {String} thumbnail Embed thumbnail URL
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster flee failure narrative
+ */
 function monsterFailFleeEmbed(name, thumbnail) {
   return gameEmbed(
     {
@@ -231,6 +330,12 @@ function monsterFailFleeEmbed(name, thumbnail) {
   );
 }
 
+/**
+ * Creates an embed for when a monster successfully flees
+ * @param {String} name Monster's name
+ * @param {String} thumbnail Embed thumbnail URL
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster flee success narrative
+ */
 function monsterFleeSuccessEmbed(name, thumbnail) {
   return gameEmbed(
     {
@@ -241,6 +346,11 @@ function monsterFleeSuccessEmbed(name, thumbnail) {
   );
 }
 
+/**
+ * Creates an embed for when a user is required to rest their character
+ * @param {String} username Username to fill embed with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with "you must rest!" narrative
+ */
 function mustRestEmbed(username) {
   return gameEmbed(
     {
@@ -251,6 +361,13 @@ function mustRestEmbed(username) {
   );
 }
 
+/**
+ * Creates an embed for when a user rests their character
+ * @param {String} username Username of user resting their character
+ * @param {Character} character Character model being rested
+ * @param {Number} goldCost Number representing gold cost for resting character
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with "your character rests" narrative
+ */
 function restEmbed(username, character, goldCost) {
   let pronouns;
 
@@ -271,6 +388,11 @@ function restEmbed(username, character, goldCost) {
   );
 }
 
+/**
+ * Creates an embed for when a user cannot rest their character
+ * @param {String} username Username to fill embed with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with "you are unable to rest!" narrative
+ */
 function cantRestEmbed(username) {
   return gameEmbed(
     {
