@@ -22,3 +22,8 @@ yarn-error.log*
 
 # env vars
 .env
+
+# temp files
+*~
+*.swp
+*.swo

@@ -5,6 +5,11 @@ const classes = require('../constants/character-classes');
 const { goldMultipliers } = require('../constants/game');
 
 /* === CHARACTER === */
+/**
+ * Returns an object with information about a character's level
+ * @param {Character} character Character model object to retrieve level information for
+ * @returns {Object} Object representing character level information
+ */
 function getCharacterLevel(character) {
   return levels.find((level, index) => {
     if (
@@ -16,6 +21,15 @@ function getCharacterLevel(character) {
   });
 }
 
+/**
+ * Returns an object containing old and new stat information based on given character and level information
+ * @param {Character} character Character model object to calculate stat information for
+ * @param {Object} oldLevel Level object representing old level
+ * @param {Object} newLevel Level object representing new level
+ * @returns {Object}
+ * @returns {Object.old} Object containing old stat information
+ * @returns {Object.new} Object containing new stat information
+ */
 function handleLevelUp(character, oldLevel, newLevel) {
   // Calculate the stats for the old and new levels
   const oldStats = calculateStats(character, oldLevel);
@@ -30,6 +44,11 @@ function handleLevelUp(character, oldLevel, newLevel) {
   return statObj;
 }
 
+/**
+ * Returns an object representing a character's class
+ * @param {Character} character Character model object
+ * @returns {Object} Object representing character's class
+ */
 function getCharacterClass(character) {
   const charClass = classes.find(
     charClass => charClass.name === character.class
@@ -42,6 +61,12 @@ function getCharacterClass(character) {
   return charClass;
 }
 
+/**
+ * Creates an object representing a character's stats at a given level
+ * @param {Character} character Character model object to generate stats from
+ * @param {Object} levelObj Object with character level information
+ * @returns {Object} Object containing stat information
+ */
 function calculateStats(character, levelObj) {
   // Get the character's class
   const charClass = classes.find(
@@ -62,6 +87,11 @@ function calculateStats(character, levelObj) {
   };
 }
 
+/**
+ * Calculates the amount of gold earned in an encounter based on given stats and monster HP
+ * @param {Object} stats Object representing character stats
+ * @param {Number} monsterBaseHP Rewarding monster's base HP
+ */
 function calculateGoldGain(stats, monsterBaseHP) {
   // Calculate gold and luck bonus
   const multiplierGold = goldMultipliers.baseGoldMult * monsterBaseHP;
