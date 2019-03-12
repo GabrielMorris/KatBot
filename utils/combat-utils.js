@@ -66,7 +66,11 @@ function damageType() {
   return random.int(0, 100) < 50 ? 'positive' : 'negative';
 }
 
-// Calculates random damage based on stats
+/**
+ * Calculates random damage based on given combined-stat value
+ * @param {Number} combinedStats Combined-stat value to use for damage calculation
+ * @returns {Number} Number representing random damage amount
+ */
 function randomDamage(combinedStats) {
   return Math.ceil(random.float() * (combinedStats * 0.1 * 0.2));
 }
