@@ -40,7 +40,10 @@ function calculateFlatHitChance(stats) {
   return hitChance;
 }
 
-// Roll die 0-1
+/*
+ * Simulates a dice roll and returns a number between 0 and 1
+ * @returns {Number} Random float between 0 and 1
+ */
 function rollDie() {
   return random.float(0, 1);
 }
