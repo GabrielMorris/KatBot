@@ -194,6 +194,16 @@ function monsterEmbed(monster, intro) {
     .addField('**NARRATIVE**', intro);
 }
 
+/**
+ * Creates an embed displaying level up information based on params
+ * @param {Object} currentLevel Level object with information representing the old level
+ * @param {Object} newLevel Level object with information representing the new level
+ * @param {Object} stats
+ * @param {Object} stats.old Object representing character stats at old level
+ * @param {Object} stats.new Object representing character stats at new level
+ * @param {String} username Username to fill level up information with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with level up information
+ */
 function levelUpEmbed(currentLevel, newLevel, stats, username) {
   return gameEmbed(
     {
