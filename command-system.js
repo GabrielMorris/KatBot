@@ -1,12 +1,17 @@
 const fs = require('fs');
 
 module.exports = function CommandSystem() {
-  // Specify the DoseBot command prefix
+  // Specify the bot command prefix
   const commandPrefix = ',';
   // Initialize an object to hold the list of commands
   var commandTable = {};
 
   return {
+/**
+ * Loads all modules from the ./commands directory into command list
+ * @param {Function} ready Callback function to execute after loading files
+ * @returns {undefined}
+ */
     load: function(ready) {
       fs.readdir('./commands', (err, items) => {
         for (let i = 0; i < items.length; i++) {
@@ -26,6 +31,12 @@ module.exports = function CommandSystem() {
       });
     },
 
+/**
+ * Takes bot client and a message, parses the message for commands, and executes the appropriate command if necessary
+ * @param {Discord.Client} client Bot Discord client object
+ * @param {Discord.Message} message Discord message object to parse
+ * @returns {undefined}
+ */
     execute: function(client, message) {
       if (message.author.bot) return;
 
