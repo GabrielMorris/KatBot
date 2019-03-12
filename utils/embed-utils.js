@@ -314,6 +314,12 @@ function combatOutroEmbed(monster) {
   );
 }
 
+/**
+ * Creates an embed for when a monster fails to flee
+ * @param {String} name Monster's name
+ * @param {String} thumbnail Embed thumbnail URL
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster flee failure narrative
+ */
 function monsterFailFleeEmbed(name, thumbnail) {
   return gameEmbed(
     {
