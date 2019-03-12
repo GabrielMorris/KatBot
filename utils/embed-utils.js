@@ -162,6 +162,10 @@ function noCharacterEmbed() {
   );
 }
 
+/**
+ * Creates an embed that displays a generic "you already have a character" message
+ * @returns {Discord.RichEmbed} Discord RichEmbed displaying a generic "you already have a character" message
+ */
 function alreadyHasCharacterEmbed() {
   return gameEmbed(
     {
