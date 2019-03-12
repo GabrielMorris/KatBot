@@ -1,5 +1,10 @@
 const random = require('random');
 
+/**
+ * Calculates hit chance with random base-rate deviation based on given stats (capped at 90%)
+ * @param {Object} stats Stat object to calculate hit rate from
+ * @returns {Number} Float representing a hit percentage (capped at 0.9 representing 90%)
+ */
 function calculateHitChance(stats) {
   // 0.3-0.5 random base range
   const baseHitChance = random.float(0.5, 0.7);
