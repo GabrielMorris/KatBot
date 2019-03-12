@@ -21,10 +21,22 @@ function monsterIntro(monster) {
     .catch(err => console.error(err));
 }
 
+/**
+ * Execute monster failure-to-flee options
+ * @param {Discord.TextChannel} channel Discord text channel to send information to
+ * @param {Monster} monster Monster model to send action information from
+ * @returns {undefined}
+ */
 function monsterFailsToFlee(channel, monster) {
   channel.send(monsterFailFleeEmbed(monster.name, monster.thumbnail));
 }
 
+/**
+ * Execute monster flee actions and save game state
+ * @param {Discord.TextChannel} channel Discord text channel to send information to
+ * @param {Game} gameDoc Game model to save state on
+ * @returns {undefined}
+ */
 function monsterFlees(channel, gameDoc) {
   channel.send(
     monsterFleeSuccessEmbed(gameDoc.monster.name, gameDoc.monster.thumbnail)
