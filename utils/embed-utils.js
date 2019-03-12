@@ -147,6 +147,10 @@ function helpEmbed() {
     .addField('**Available pronouns**', 'male, female, neutral');
 }
 
+/**
+ * Creates an embed that displays a generic "you have no character" message with registration information
+ * @returns {Discord.RichEmbed} Discord RichEmbed displaying a generic "you have no character" message
+ */
 function noCharacterEmbed() {
   return gameEmbed(
     {
