@@ -361,6 +361,12 @@ function mustRestEmbed(username) {
   );
 }
 
+/**
+ * Creates an embed for when a user rests their character
+ * @param {String} username Username of user resting their character
+ * @param {Number} goldCost Number representing gold cost for resting character
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with "your character rests" narrative
+ */
 function restEmbed(username, goldCost) {
   return gameEmbed(
     {
