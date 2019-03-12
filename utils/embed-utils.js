@@ -377,6 +377,11 @@ function restEmbed(username, goldCost) {
   );
 }
 
+/**
+ * Creates an embed for when a user cannot rest their character
+ * @param {String} username Username to fill embed with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with "you are unable to rest!" narrative
+ */
 function cantRestEmbed(username) {
   return gameEmbed(
     {
