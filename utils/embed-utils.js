@@ -299,6 +299,11 @@ function combatRewardEmbed(username, xp, goldEarned) {
   );
 }
 
+/**
+ * Creates an embed displaying combat outro narrative
+ * @param {Monster} monster Monster model object to base outro text upon
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with combat outro narrative
+ */
 function combatOutroEmbed(monster) {
   return gameEmbed(
     {
