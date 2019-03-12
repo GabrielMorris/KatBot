@@ -346,6 +346,11 @@ function monsterFleeSuccessEmbed(name, thumbnail) {
   );
 }
 
+/**
+ * Creates an embed for when a user is required to rest their character
+ * @param {String} username Username to fill embed with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with "you must rest!" narrative
+ */
 function mustRestEmbed(username) {
   return gameEmbed(
     {
