@@ -8,6 +8,11 @@ const { setGameState } = require('../utils/state-utils');
 const { monsterIntro } = require('../utils/narrative-utils');
 const { monsterEmbed } = require('../utils/embed-utils');
 
+/**
+ * Spawns a new monster into game state and sends an intro message to specified channel
+ * @param {Discord.TextChannel} channel Discord text channel to send monster intro embed to
+ * @returns {undefined}
+ */
 function spawner(channel) {
   // Retrieve all the monsters from the database
   Monster.find()
