@@ -87,6 +87,11 @@ function calculateStats(character, levelObj) {
   };
 }
 
+/**
+ * Calculates the amount of gold earned in an encounter based on given stats and monster HP
+ * @param {Object} stats Object representing character stats
+ * @param {Number} monsterBaseHP Rewarding monster's base HP
+ */
 function calculateGoldGain(stats, monsterBaseHP) {
   // Calculate gold and luck bonus
   const multiplierGold = goldMultipliers.baseGoldMult * monsterBaseHP;
