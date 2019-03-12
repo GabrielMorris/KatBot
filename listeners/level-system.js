@@ -6,6 +6,11 @@ module.exports = function LevelSystem() {
   const { getUserRank } = require('../utils/utils');
 
   return {
+/**
+ * Creates or updates a user's experience doc with XP based on a given message's length
+ * @param {Discord.Message} message Discord message object to derive XP from
+ * @returns {undefined}
+ */
     // Creates or updates a user's experience doc
     execute: function(message) {
       Level.findOne({ memberID: message.member.id, guildID: message.guild.id })
