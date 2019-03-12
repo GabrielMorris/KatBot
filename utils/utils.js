@@ -3,6 +3,34 @@ const random = require('random');
 const EmbedConsts = require('../constants/embeds');
 const LevelConsts = require('../constants/level-consts');
 
+/**
+ * Creates and returns a Discord.RichEmbed object based on options parameter
+ * @param {Object} embedOpts
+ * @param {} embedOpts.image
+ * @param {} embedOpts.fields
+ * @param {} embedOpts.title
+ * @returns {Discord.RichEmbed} Discord.RichEmbed object constructed from given options
+ * @example
+ * // Returns a Discord.RichEmbed object with the title "A Sample Rich Embed",
+ * // two fields with name/value pairs "First Field":"Text for field one." and "Second Field":"Text for field two.",
+ * // and an image thumbnail with the URL 'https://i.imgur.com/xxxxxx2.png'
+ * EmbedConsts.images = {
+ *   top: 'https://i.imgur.com/xxxxxx0.png',
+ *   rank: 'https://i.imgur.com/xxxxxx1.png',
+ *   help: 'https://i.imgur.com/xxxxxx2.png',
+ *   memes: 'https://i.imgur.com/xxxxxx3.png',
+ *   rest: 'https://i.imgur.com/xxxxxx4.png'
+ * }
+ * const options = {
+ *   image: 'help',
+ *   fields: [
+ *     {name: 'First Field', value: 'Text for field one'},
+ *     {name: 'Second Field', value: 'Text for field two'}
+ *   ],
+ *   title: 'A Sample Rich Embed'
+ * }
+ * createEmbed(options);
+ */
 function createEmbed(embedOpts) {
   const { image, fields, title } = embedOpts;
 
