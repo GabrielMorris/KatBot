@@ -44,6 +44,11 @@ function handleLevelUp(character, oldLevel, newLevel) {
   return statObj;
 }
 
+/**
+ * Returns an object representing a character's class
+ * @param {Character} character Character model object
+ * @returns {Object} Object representing character's class
+ */
 function getCharacterClass(character) {
   const charClass = classes.find(
     charClass => charClass.name === character.class
