@@ -17,6 +17,15 @@ function createEmbed(embedOpts) {
   return embed;
 }
 
+/**
+ * Gets object describing user's rank based on their experience count
+ * @param {Number} xp User's experience count
+ * @returns {Object} Object describing user's rank
+ * @example
+ * // returns rank object with name 'Cocoa Powder'
+ * LevelConsts.ranks = [ {name: '', maxXP: 25}, {name: 'Cocoa Powder', maxXP: 150}, {name: 'Coca Powder ;]', maxXP: 250} ];
+ * getUserRank(150);
+ */
 function getUserRank(xp) {
   return LevelConsts.ranks.find(rank => xp < rank.maxXP);
 }
