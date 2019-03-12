@@ -14,7 +14,7 @@ KatBot connects to a [MongoDB](https://docs.mongodb.com) server for data storage
 
 ### Configuration
 
-KatBot uses the module [dotenv](https://www.npmjs.com/package/dotenv) to securely manage environment variables. All environment variables should be placed in a local `.env` file; this file is ignored by Git and should remain **local-only**.
+KatBot uses the module [dotenv](https://www.npmjs.com/package/dotenv) to securely manage environment variables. All environment variables should be placed in a local `.env` file (copied from sample env file [env.example](./env.example)); this file is ignored by Git and should remain **local-only**.
 
 Sample .env file contents:
 
