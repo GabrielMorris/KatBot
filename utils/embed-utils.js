@@ -132,6 +132,10 @@ function classEmbed(charClass) {
     );
 }
 
+/**
+ * Creates an embed displaying character creation help
+ * @returns {Discord.RichEmbed} Discord RichEmbed displaying character creation help
+ */
 function helpEmbed() {
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
