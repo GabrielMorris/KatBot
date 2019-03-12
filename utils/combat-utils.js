@@ -7,7 +7,7 @@ const random = require('random');
  */
 function calculateHitChance(stats) {
   // 0.3-0.5 random base range
-  const baseHitChance = random.float(0.5, 0.7);
+  const baseHitChance = random.float(0.55, 0.7);
   // Formula: STR * 0.25 + AGI * 0.5 / 100 TODO: move to constant
   const charHitChanceBonus = (stats.STR * 0.25 + stats.AGI * 0.5) / 100;
 
