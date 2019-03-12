@@ -21,6 +21,15 @@ function getCharacterLevel(character) {
   });
 }
 
+/**
+ * Returns an object containing old and new stat information based on given character and level information
+ * @param {Character} character Character model object to calculate stat information for
+ * @param {Object} oldLevel Level object representing old level
+ * @param {Object} newLevel Level object representing new level
+ * @returns {Object}
+ * @returns {Object.old} Object containing old stat information
+ * @returns {Object.new} Object containing new stat information
+ */
 function handleLevelUp(character, oldLevel, newLevel) {
   // Calculate the stats for the old and new levels
   const oldStats = calculateStats(character, oldLevel);
