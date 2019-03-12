@@ -6,6 +6,11 @@ const {
 } = require('./embed-utils');
 const Encounter = require('../models/game/encounter');
 
+/**
+ * Construct encounter narrative text based on a given monster
+ * @param {Monster} monster Monster model to base message information from
+ * @returns {Promise<String|undefined>} Promise resolving to encounter text string if fulfilled or rejecting undefined on error
+ */
 /* === MONSTER NARRATIVE === */
 function monsterIntro(monster) {
   // Find a random encounter document
