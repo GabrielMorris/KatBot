@@ -83,9 +83,9 @@ const classes = [
     growth: {
       HP: 1,
       MP: 2,
-      STR: 1,
+      STR: 3,
       DEF: 1,
-      AGI: 4,
+      AGI: 5,
       LUCK: 1
     },
     isMage: true,

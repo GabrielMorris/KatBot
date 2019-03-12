@@ -10,12 +10,15 @@ exports.run = (client, message, args) => {
   const { channel } = message;
 
   // Can only rest <40% HP
-  Character.findOne({ memberID: message.author.id }).then(character => {
+  Character.findOne({
+    memberID: message.author.id,
+    guildID: message.guild.id
+  }).then(character => {
     const levelObj = getCharacterLevel(character);
     const baseStats = calculateStats(character, levelObj);
 
     // If a player's health is 40% or less of the total they can rest
-    if (character.health <= 0.4 * baseStats.HP) {
+    if (character.health <= Math.ceil(0.4 * baseStats.HP)) {
       // Can rest
       const goldCost = Math.floor(character.gold * 0.05);
 
