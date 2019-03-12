@@ -89,7 +89,7 @@ function characterSheetEmbed(character, charClass, username) {
 /**
  * Creates an embed showing rankings for a given set of characters
  * @param {Array.<Character>} characters Array of character models to fill embed with
- * @returns {Discord.RichEmbed}
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with character ranking information
  */
 // TODO: need to make sure we don't exceed 1024 char embed field limit
 function guildRankingEmbed(characters) {
@@ -112,7 +112,7 @@ function guildRankingEmbed(characters) {
 /**
  * Creates an embed representing a character class
  * @param {Object} charClass Character class object to fill embed with
- * @returns {Discord.RichEmbed}
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with character class information
  */
 function classEmbed(charClass) {
   return new Discord.RichEmbed()
