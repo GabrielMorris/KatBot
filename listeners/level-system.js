@@ -6,11 +6,11 @@ module.exports = function LevelSystem() {
   const { getUserRank } = require('../utils/utils');
 
   return {
-/**
- * Creates or updates a user's experience doc with XP based on a given message's length
- * @param {Discord.Message} message Discord message object to derive XP from
- * @returns {undefined}
- */
+    /**
+     * Creates or updates a user's experience doc with XP based on a given message's length
+     * @param {Discord.Message} message Discord message object to derive XP from
+     * @returns {undefined}
+     */
     // Creates or updates a user's experience doc
     execute: function(message) {
       Level.findOne({ memberID: message.member.id, guildID: message.guild.id })
@@ -111,12 +111,12 @@ module.exports = function LevelSystem() {
         })
         .catch(err => console.error(err));
     },
-/**
- * Fetches a user's experience level from the data store
- * @param {Discord.Snowflake} memberID Discord user ID
- * @param {Discord.Snowflake} guildID Discord guild ID
- * @returns {Number|null} Number representing user experience count, or null if not found
- */
+    /**
+     * Fetches a user's experience level from the data store
+     * @param {Discord.Snowflake} memberID Discord user ID
+     * @param {Discord.Snowflake} guildID Discord guild ID
+     * @returns {Number|null} Number representing user experience count, or null if not found
+     */
     getUserExperience: function(memberID, guildID) {
       return Level.findOne({ memberID, guildID }).then(levelDoc => {
         if (levelDoc) {
