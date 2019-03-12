@@ -330,6 +330,12 @@ function monsterFailFleeEmbed(name, thumbnail) {
   );
 }
 
+/**
+ * Creates an embed for when a monster successfully flees
+ * @param {String} name Monster's name
+ * @param {String} thumbnail Embed thumbnail URL
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster flee success narrative
+ */
 function monsterFleeSuccessEmbed(name, thumbnail) {
   return gameEmbed(
     {
