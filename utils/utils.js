@@ -21,6 +21,15 @@ function getUserRank(xp) {
   return LevelConsts.ranks.find(rank => xp < rank.maxXP);
 }
 
+/**
+ * Takes monster array and returns random monster
+ * @param {Array} monsterArr
+ * @returns {Monster} Random Monster object
+ * @example
+ * // returns random monster object from array of all monsters
+ * const allMonsters = [ ... ];
+ * randomMonster(allMonsters);
+ */
 function randomMonster(monsterArr) {
   return monsterArr[Math.floor(random.float() * monsterArr.length)];
 }
