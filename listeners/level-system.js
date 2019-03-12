@@ -111,6 +111,12 @@ module.exports = function LevelSystem() {
         })
         .catch(err => console.error(err));
     },
+/**
+ * Fetches a user's experience level from the data store
+ * @param {Discord.Snowflake} memberID Discord user ID
+ * @param {Discord.Snowflake} guildID Discord guild ID
+ * @returns {Number|null} Number representing user experience count, or null if not found
+ */
     getUserExperience: function(memberID, guildID) {
       return Level.findOne({ memberID, guildID }).then(levelDoc => {
         if (levelDoc) {
@@ -123,7 +129,12 @@ module.exports = function LevelSystem() {
   };
 };
 
-// Calculate experience gain (0.1 * chars capped at 20)
+/**
+ * Takes an experience number and caps it (currently at 20)
+ * @private
+ * @param {Number} xp Raw XP
+ * @returns {Number} Capped XP
+ */
 function _calculateXP(xp) {
   return xp > 20 ? 20 : xp;
 }
