@@ -22,7 +22,7 @@ exports.run = (client, message, args) => {
       character.health = baseStats.HP;
       character.gold = character.gold - goldCost;
 
-      channel.send(restEmbed(message.author.username, goldCost));
+      channel.send(restEmbed(message.author.username, character, goldCost));
 
       character.save();
     } else {

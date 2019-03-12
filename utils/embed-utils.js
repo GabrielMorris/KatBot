@@ -164,7 +164,7 @@ function combatEmbed(username, monster, damage, thumbnail) {
 
   const text =
     damage > 0
-      ? `**${username}** hit **${monster.name}** for **${damage} HP**, ${
+      ? `**${username}** hit **${monster.name}** for **${damage} DMG**, ${
           dead ? 'killing' : 'wounding'
         } it!`
       : `**${username}** missed **${monster.name}**!`;
@@ -245,17 +245,27 @@ function mustRestEmbed(username) {
   return gameEmbed(
     {
       title: '**MORTAL WOUND**',
-      text: `**${username}** is mortally wounded and must \`,rest\` before returning to the fight`
+      text: `**${username}** is mortally wounded and must \`,rest\` before returning to the fight.`
     },
     EmbedConsts.images.rest
   );
 }
 
-function restEmbed(username, goldCost) {
+function restEmbed(username, character, goldCost) {
+  let pronouns;
+
+  if (character.pronouns === 'male') {
+    pronouns = 'his';
+  } else if (character.pronouns === 'female') {
+    pronouns = 'her';
+  } else {
+    pronouns = 'their';
+  }
+
   return gameEmbed(
     {
       title: '**REST**',
-      text: `_**${username}** lays down their burdens and rests at a local inn for **${goldCost}g**, restoring their health_`
+      text: `_**${username}** lays down ${pronouns} burdens and rests at a local inn for **${goldCost}g**, restoring ${pronouns} health._`
     },
     EmbedConsts.images.rest
   );
