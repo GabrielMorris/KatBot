@@ -25,10 +25,27 @@ function randomMonster(monsterArr) {
   return monsterArr[Math.floor(random.float() * monsterArr.length)];
 }
 
+/**
+ * Takes array and returns a valid random index number
+ * @param {Array} arr
+ * @returns {Number} Valid index number from value of parameter arr
+ * @example
+ * // returns random number between 0 and 2
+ * const arrParam = ['itemA', 'itemB', 'itemC'];
+ * randomArrayIndex(arrParam);
+ */
 function randomArrayIndex(arr) {
   return Math.floor(random.float() * arr.length);
 }
 
+/**
+ * Capitalizes first letter of given string
+ * @param {String} string
+ * @returns {String} Capitalized string param
+ * @example
+ * //returns 'Katbot'
+ * capitalizeFirstLetter('katbot');
+ */
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
