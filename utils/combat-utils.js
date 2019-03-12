@@ -20,6 +20,11 @@ function calculateHitChance(stats) {
   return hitChance;
 }
 
+/**
+ * Calculates hit chance with based on given stats (capped at 90%), no random deviation
+ * @param {Object} stats Stat object to calculate hit rate from
+ * @returns {Number} Float representing a hit percentage (capped at 0.9 representing 90%)
+ */
 function calculateFlatHitChance(stats) {
   // 0.3-0.5 random base range
   const baseHitChance = 0.5;
