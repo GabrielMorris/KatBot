@@ -48,7 +48,6 @@ client.on('message', message => {
  * @param {String} message Text to set bot's Discord client status to
  * @returns {undefined}
  */
-// Sets KatBot's activity
 function setGameMessage(message) {
   if (!message) return;
 
