@@ -224,6 +224,14 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
   );
 }
 
+/**
+ * Creates an embed displaying character-initiated attack information
+ * @param {String} username Username to fill attack information with
+ * @param {Monster} monster Targeted Monster model object to fill attack information with
+ * @param {Number} damage Amount of damage dealt to target
+ * @param {String} thumbnail URL for embed image thumbnail
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with character-initiated attack information
+ */
 function combatEmbed(username, monster, damage, thumbnail) {
   const dead = monster.health - damage <= 0 ? true : false;
 
