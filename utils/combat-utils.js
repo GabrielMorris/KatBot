@@ -48,7 +48,12 @@ function rollDie() {
   return random.float(0, 1);
 }
 
-// Returns true if hit > die roll
+/**
+ * Checks whether a hit was successful
+ * @param {Number} hitChance Number representing hit chance
+ * @param {Number} dieRoll Die roll to check against hit chance
+ * @returns {Boolean} true if hit succeeds, false if fails
+ */
 function wasHit(hitChance, dieRoll) {
   return hitChance >= dieRoll;
 }
