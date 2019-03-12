@@ -26,6 +26,7 @@ DB_PASS=sampleDatabasePassword
 #### List of environment variables used
 
 | Name | Description |
+| ---- | ----------- |
 | DB_USER | Database username |
 | DB_PASS | Database password |
 
