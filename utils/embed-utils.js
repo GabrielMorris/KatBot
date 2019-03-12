@@ -86,6 +86,11 @@ function characterSheetEmbed(character, charClass, username) {
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
 
+/**
+ * Creates an embed showing rankings for a given set of characters
+ * @param {Array.<Character>} characters Array of character models to fill embed with
+ * @returns {Discord.RichEmbed}
+ */
 // TODO: need to make sure we don't exceed 1024 char embed field limit
 function guildRankingEmbed(characters) {
   const text = characters
