@@ -61,6 +61,12 @@ function getCharacterClass(character) {
   return charClass;
 }
 
+/**
+ * Creates an object representing a character's stats at a given level
+ * @param {Character} character Character model object to generate stats from
+ * @param {Object} levelObj Object with character level information
+ * @returns {Object} Object containing stat information
+ */
 function calculateStats(character, levelObj) {
   // Get the character's class
   const charClass = classes.find(
