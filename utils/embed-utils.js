@@ -176,6 +176,12 @@ function alreadyHasCharacterEmbed() {
   );
 }
 
+/**
+ * Creates an embed that displays information and narrative about a newly spawned monster
+ * @param {Monster} monster Monster model to fill monster information sheet section with
+ * @param {String} intro Intro narrative text to fill narrative section with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with new monster and narrative information
+ */
 function monsterEmbed(monster, intro) {
   return new Discord.RichEmbed()
     .setThumbnail(monster.thumbnail)
