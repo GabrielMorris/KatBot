@@ -67,15 +67,19 @@ function damageType() {
 }
 
 /**
- * Calculates random damage based on given combined-stat value
- * @param {Number} combinedStats Combined-stat value to use for damage calculation
- * @returns {Number} Number representing random damage amount
+ * Calculates a random damage-deviation amount based on given combined-stat value
+ * @param {Number} combinedStats Combined-stat value to use for damage-deviation calculation
+ * @returns {Number} Number representing random damage-deviation amount
  */
 function randomDamage(combinedStats) {
   return Math.ceil(random.float() * (combinedStats * 0.1 * 0.2));
 }
 
-// Return the damage +/- random damage
+/**
+ * Calculates final damage value for given combined stat value
+ * @param {Number} combinedStats Combined-stat value to use for damage calculation
+ * @returns {Number} Number representing damage amount
+ */
 function attackDamage(combinedStats) {
   const damageRand = randomDamage(combinedStats);
 
