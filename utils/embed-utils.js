@@ -13,6 +13,7 @@ const { calculateFlatHitChance } = require('./combat-utils');
  * @param {String} obj.title Embed title
  * @param {String} obj.text Embed text
  * @param {String|null} [thumbnail=null] URL for embed image thumbnail (optional)
+ * @returns {Discord.RichEmbed} Discord RichEmbed built with given parameters
  * @example
  * // Creates a simple embed with the title "Sample Game Embed",
  * // the text "This is sample body text for the embed.",
