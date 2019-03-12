@@ -10,7 +10,10 @@ exports.run = (client, message, args) => {
   const { channel } = message;
 
   // Can only rest <40% HP
-  Character.findOne({ memberID: message.author.id }).then(character => {
+  Character.findOne({
+    memberID: message.author.id,
+    guildID: message.guild.id
+  }).then(character => {
     const levelObj = getCharacterLevel(character);
     const baseStats = calculateStats(character, levelObj);
 
