@@ -51,6 +51,13 @@ function startGameEmbed() {
   );
 }
 
+/**
+ * Creates an embed for a character sheet
+ * @param {Character} character Character model to fill sheet with
+ * @param {Object} charClass Character class object to fill sheet with
+ * @param {String} username Username to fill on model sheet
+ * @returns {Discord.RichEmbed} Discord RichEmbed with character sheet information
+ */
 function characterSheetEmbed(character, charClass, username) {
   const levelObj = getCharacterLevel(character);
   const nextLevelObj = levels.find(level => level.level > levelObj.level);
