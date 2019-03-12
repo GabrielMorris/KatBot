@@ -251,6 +251,14 @@ function combatEmbed(username, monster, damage, thumbnail) {
   );
 }
 
+/**
+ * Creates an embed displaying monster-initiated attack information
+ * @param {String} username Username to fill attack information with
+ * @param {Character} character Targeted Character model object to fill attack information with
+ * @param {Monster} monster Attacking Monster model object to fill attack information with
+ * @param {Number} damage Amount of damage dealt to target
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster-initiated attack information
+ */
 function monsterAttackEmbed(username, character, monster, damage) {
   const dead = character.health - damage <= 0 ? true : false;
   let pronouns;
