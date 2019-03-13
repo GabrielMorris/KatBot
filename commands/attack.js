@@ -26,7 +26,8 @@ exports.run = (client, message, args) => {
     calculateHitChance,
     rollDie,
     wasHit,
-    attackDamage
+    attackDamage,
+    calculateMonsterDamage
   } = require('../utils/combat-utils');
 
   const { channel, guild, author } = message;
@@ -125,12 +126,13 @@ exports.run = (client, message, args) => {
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
                 // Don't let damage take a character into negative HP
-                const damage =
-                  character.health - game.monster.damage < 0
+		const monsterDamageRoll = calculateMonsterDamage(game.monster);
+                const cappedDamage =
+                  character.health - monsterDamageRoll < 0
                     ? character.health
-                    : game.monster.damage;
+                    : monsterDamageRoll;
 
-                character.health -= damage;
+                character.health -= cappedDamage;
 
                 channel.send(
                   monsterAttackEmbed(
