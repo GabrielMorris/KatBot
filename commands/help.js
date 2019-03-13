@@ -13,8 +13,8 @@ exports.run = (client, message, args) => {
 	      value: 'Attack the current monster in this server. If no monster is currently around, nothing happens.'
       },
       {
-	      name: '**,character [list|me]**',
-	      value: '`list`: show character classes; `me`: show your character sheet for this server.'
+	      name: '**,character [list|me|new|top]**',
+	      value: '`list`: show character classes. `me`: show your character sheet for this server. `new`: create new character. `top`: show server character rankings.'
       },
       { name: '**,debug-game**', value: 'Show game debug information (restricted).' },
       { name: '**,help**', value: 'Display this message with command help.' },
