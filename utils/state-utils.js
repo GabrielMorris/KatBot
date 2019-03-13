@@ -17,11 +17,13 @@ function setGameState(game, bool, monster = null) {
  * @returns {Array.<String>} Array of Discord channel IDs
  */
 function getGameChannels() {
-	const gameChannelsRaw = process.env.GAME_CHANNELS;
-	if (!gameChannelsRaw) {
-		throw new Error('GAME_CHANNELS is a required environment variable and is currently unset');
-	}
-	return gameChannelsRaw.split(';');
+  const gameChannelsRaw = process.env.GAME_CHANNELS;
+  if (!gameChannelsRaw) {
+    throw new Error(
+      'GAME_CHANNELS is a required environment variable and is currently unset'
+    );
+  }
+  return gameChannelsRaw.split(';');
 }
 
 /**
@@ -29,11 +31,13 @@ function getGameChannels() {
  * @returns {Array.<String>} Array of Discord user IDs
  */
 function getGameMasters() {
-	const gameMastersRaw = process.env.GAME_MASTERS;
-	if (!gameMastersRaw) {
-		throw new Error('GAME_MASTERS is a required environment variable and is currently unset');
-	}
-	return gameMastersRaw.split(';');
+  const gameMastersRaw = process.env.GAME_MASTERS;
+  if (!gameMastersRaw) {
+    throw new Error(
+      'GAME_MASTERS is a required environment variable and is currently unset'
+    );
+  }
+  return gameMastersRaw.split(';');
 }
 
 module.exports = { setGameState, getGameChannels, getGameMasters };
