@@ -48,4 +48,12 @@ function getBotName() {
   return process.env.BOT_NAME;
 }
 
-module.exports = { setGameState, getGameChannels, getGameMasters, getBotName };
+/**
+ * Retrieves the bot's command prefix
+ * @returns {String}
+ */
+function getBotCommandPrefix() {
+	return process.env.BOT_PREFIX;
+}
+
+module.exports = { setGameState, getGameChannels, getGameMasters, getBotName, getBotCommandPrefix };
