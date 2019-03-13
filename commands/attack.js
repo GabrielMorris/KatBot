@@ -68,20 +68,20 @@ exports.run = (client, message, args) => {
             const hitChance = calculateHitChance(stats);
             const dieRoll = rollDie();
             const hitsEnemy = wasHit(hitChance, dieRoll);
-            const damage = attackDamage(combinedStats);
+            const characterDamageRoll = attackDamage(combinedStats);
 
             // Attack monster
             channel.send(
               combatEmbed(
                 author.username,
                 monster,
-                hitsEnemy ? damage : 0,
+                hitsEnemy ? characterDamageRoll : 0,
                 charClass.thumbnail
               )
             );
 
             // If we hit the enemy and monster health is <= 0
-            if (hitsEnemy && game.monster.health - damage <= 0) {
+            if (hitsEnemy && game.monster.health - characterDamageRoll <= 0) {
               // Get the character's current level
               const currentLevel = getCharacterLevel(character);
 
@@ -118,7 +118,7 @@ exports.run = (client, message, args) => {
               return { goldEarned: goldEarned };
             } else {
               // If player did no damage return so we don't make an extra DB query
-              if (!hitsEnemy || damage === 0) return false;
+              if (!hitsEnemy || characterDamageRoll === 0) return false;
 
               // TODO: move this logic to a util
               const dieRoll = random.float();
@@ -127,19 +127,19 @@ exports.run = (client, message, args) => {
               if (dieRoll < 1) {
                 // Don't let damage take a character into negative HP
 		const monsterDamageRoll = calculateMonsterDamage(game.monster);
-                const cappedDamage =
+                const cappedMonsterDamage =
                   character.health - monsterDamageRoll < 0
                     ? character.health
                     : monsterDamageRoll;
 
-                character.health -= cappedDamage;
+                character.health -= cappedMonsterDamage;
 
                 channel.send(
                   monsterAttackEmbed(
                     author.username,
                     character,
                     game.monster,
-                    damage
+                    characterDamageRoll
                   )
                 );
 
@@ -150,7 +150,7 @@ exports.run = (client, message, args) => {
                 character.save();
               }
 
-              game.monster.health -= damage;
+              game.monster.health -= characterDamageRoll;
 
               // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
               game.markModified('monster');
