@@ -1,9 +1,12 @@
+const stateUtils = require('../utils/state-utils.js');
+
 exports.run = (client, message, args) => {
   const { createEmbed } = require('../utils/utils');
+  const botName = stateUtils.getBotName();
 
   const embedOpts = {
     image: 'help',
-    title: '**KatBot Commands**',
+    title: `**${botName} Commands**`,
     fields: [
       { name: '**,help**', value: 'Display this message with command help' },
       {
@@ -15,18 +18,7 @@ exports.run = (client, message, args) => {
         name: '**,top**',
         value:
           'Displays the top 10 users on the server based on experience sorted in descending order.'
-      },
-      {
-        name: '**,katname <string>**',
-        value:
-          "Changes Kat's name to the specified string, which has a maximum length of 32 characters per Discord name policy."
-      },
-      {
-        name: '**,memes**',
-        value:
-          'Lists all currently available Kat memes for your endless entertainment.'
-      },
-      { name: '**,katism**', value: 'Says something... Kat-y' }
+      }
     ]
   };
 
