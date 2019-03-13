@@ -45,7 +45,7 @@ function getGameMasters() {
  * @returns {String}
  */
 function getBotName() {
-	return process.env.BOT_NAME;
+  return process.env.BOT_NAME;
 }
 
 module.exports = { setGameState, getGameChannels, getGameMasters, getBotName };
