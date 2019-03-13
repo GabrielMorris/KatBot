@@ -1,7 +1,10 @@
+const stateUtils = require('../utils/state-utils');
+
 exports.run = (client, message, args) => {
   const Game = require('../models/game/game');
+  const gameMasters = stateUtils.getGameMasters();
 
-  if (message.author.id === '278301453620084736') {
+  if (gameMasters.includes(message.author.id)) {
     Game.findOne({ guildID: message.guild.id }).then(gameDoc => {
       console.log(gameDoc);
 

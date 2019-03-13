@@ -1,8 +1,10 @@
+const stateUtils = require('../utils/state-utils');
+
 exports.run = (client, message, args) => {
   const classes = require('../constants/character-classes');
   const Character = require('../models/game/character');
   const pronouns = require('../constants/pronouns');
-  const { gameChannels } = require('../constants/game');
+  const gameChannels = stateUtils.getGameChannels();
   const {
     characterSheetEmbed,
     classEmbed,
@@ -50,11 +52,15 @@ exports.run = (client, message, args) => {
     // If new is an arg but not in the right spot don't do anything
     if (args[0] !== 'new') {
       return;
+    } else if (!args[1]) {
+      channel.send('Please specify a valid class name.');
     } else if (!classNames.find(name => name === args[1].toLowerCase())) {
       // If the class name isn't found send a message saying the class name is not valid
       channel.send('Invalid class name');
 
       return;
+    } else if (!args[2]) {
+      channel.send('Please specify a set of pronouns.');
     } else if (!pronouns.find(pronoun => pronoun === args[2].toLowerCase())) {
       // If the pronouns arent in the pronoun consts file send a message saying that
       channel.send('Invalid pronouns (male, female, or neutral)');

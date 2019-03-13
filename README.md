@@ -28,9 +28,12 @@ KatBot uses the module [dotenv](https://www.npmjs.com/package/dotenv) to securel
 
 | Name | Description |
 | ---- | ----------- |
+| DB_URL | Database connection URL |
 | DB_USER | Database username |
 | DB_PASS | Database password |
 | TOKEN | Discord bot token |
+| GAME_CHANNELS | Discord Channel IDs (separated by semicolon) this bot runs on |
+| GAME_MASTERS | Discord User IDs (separated by semicolon) to grant game admin status to |
 
 ## Contribution
 
