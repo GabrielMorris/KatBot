@@ -126,7 +126,7 @@ exports.run = (client, message, args) => {
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
                 // Don't let damage take a character into negative HP
-		const monsterDamageRoll = calculateMonsterDamage(game.monster);
+                const monsterDamageRoll = calculateMonsterDamage(game.monster);
                 const cappedMonsterDamage =
                   character.health - monsterDamageRoll < 0
                     ? character.health

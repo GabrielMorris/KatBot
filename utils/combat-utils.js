@@ -89,15 +89,18 @@ function attackDamage(combinedStats) {
 }
 
 function calculateMonsterDamage(monster) {
-	const baseDamage = monster.damage;
-	// random deviation +/- 20%
-	const randomRange = random.float(0, 0.21);
-	const deviation = randomRange * baseDamage;
-	// adds or subtracts the damage deviation randomly
-	const floatDamage = (damageType() === 'positive' ? (baseDamage + deviation) : (baseDamage - deviation));
+  const baseDamage = monster.damage;
+  // random deviation +/- 20%
+  const randomRange = random.float(0, 0.21);
+  const deviation = randomRange * baseDamage;
+  // adds or subtracts the damage deviation randomly
+  const floatDamage =
+    damageType() === 'positive'
+      ? baseDamage + deviation
+      : baseDamage - deviation;
 
-	// round up damage
-	return Math.ceil(floatDamage);
+  // round up damage
+  return Math.ceil(floatDamage);
 }
 
 module.exports = {
