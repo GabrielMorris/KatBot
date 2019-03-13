@@ -1,5 +1,3 @@
-const gameChannels = ['550454349608779777', '494574903173971971'];
-
 const gameEmbedThumbs = {
   intro: 'https://i.imgur.com/b9HZEu2.png',
   help: 'https://i.imgur.com/Huz9ZGi.png',
@@ -14,4 +12,4 @@ const goldMultipliers = {
   baseGoldMult: 0.8
 };
 
-module.exports = { gameChannels, gameEmbedThumbs, goldMultipliers };
+module.exports = { gameEmbedThumbs, goldMultipliers };

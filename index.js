@@ -7,7 +7,7 @@ const LevelSystem = require('./listeners/level-system')();
 const DragonSword = require('./listeners/dragon-sword')(client);
 
 // Mongo connection
-mongoose.connect('mongodb://ds151805.mlab.com:51805/katia_boticata', {
+mongoose.connect(process.env.DB_URL, {
   useNewUrlParser: true,
   user: process.env.DB_USER,
   pass: process.env.DB_PASS

@@ -14,7 +14,7 @@ module.exports = function DragonSword(client) {
   const { startGameEmbed } = require('../utils/embed-utils');
 
   // Channels
-  const { gameChannels } = require('../constants/game');
+  const gameChannels = process.env.GAME_CHANNELS.split(';');
 
   return {
     /**
