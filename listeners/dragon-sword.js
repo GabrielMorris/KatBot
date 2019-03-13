@@ -1,3 +1,5 @@
+const stateUtils = require('../utils/state-utils');
+
 module.exports = function DragonSword(client) {
   const random = require('random');
 
@@ -14,7 +16,7 @@ module.exports = function DragonSword(client) {
   const { startGameEmbed } = require('../utils/embed-utils');
 
   // Channels
-  const gameChannels = process.env.GAME_CHANNELS.split(';');
+  const gameChannels = stateUtils.getGameChannels();
 
   return {
     /**

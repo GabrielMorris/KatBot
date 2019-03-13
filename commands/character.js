@@ -1,8 +1,10 @@
+const stateUtils = require('../utils/state-utils');
+
 exports.run = (client, message, args) => {
   const classes = require('../constants/character-classes');
   const Character = require('../models/game/character');
   const pronouns = require('../constants/pronouns');
-  const gameChannels = process.env.GAME_CHANNELS.split(';');
+  const gameChannels = stateUtils.getGameChannels();
   const {
     characterSheetEmbed,
     classEmbed,
