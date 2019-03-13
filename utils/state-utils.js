@@ -53,7 +53,13 @@ function getBotName() {
  * @returns {String}
  */
 function getBotCommandPrefix() {
-	return process.env.BOT_PREFIX;
+  return process.env.BOT_PREFIX;
 }
 
-module.exports = { setGameState, getGameChannels, getGameMasters, getBotName, getBotCommandPrefix };
+module.exports = {
+  setGameState,
+  getGameChannels,
+  getGameMasters,
+  getBotName,
+  getBotCommandPrefix
+};

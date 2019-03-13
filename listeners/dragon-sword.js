@@ -86,7 +86,10 @@ module.exports = function DragonSword(client) {
               // Get a random number 0-99
               const rand = random.int(0, 99);
 
-              if (rand < 50 || monsterCantFlee) {
+              // If the monster is a boss it can't flee so don't send a message saying it fails to flee
+              if (monster.isBoss) {
+                this._checkShouldSpawn(channel);
+              } else if (rand < 50 || monsterCantFlee) {
                 // Monster sticks around
                 monsterFailsToFlee(channel, gameDoc.monster);
                 this._checkShouldSpawn(channel);
