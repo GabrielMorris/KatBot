@@ -88,10 +88,26 @@ function attackDamage(combinedStats) {
     : Math.ceil(combinedStats * 0.1) - damageRand;
 }
 
+function calculateMonsterDamage(monster) {
+  const baseDamage = monster.damage;
+  // random deviation +/- 20%
+  const randomRange = random.float(0, 0.21);
+  const deviation = randomRange * baseDamage;
+  // adds or subtracts the damage deviation randomly
+  const floatDamage =
+    damageType() === 'positive'
+      ? baseDamage + deviation
+      : baseDamage - deviation;
+
+  // round up damage
+  return Math.ceil(floatDamage);
+}
+
 module.exports = {
   calculateHitChance,
   rollDie,
   wasHit,
   attackDamage,
-  calculateFlatHitChance
+  calculateFlatHitChance,
+  calculateMonsterDamage
 };
