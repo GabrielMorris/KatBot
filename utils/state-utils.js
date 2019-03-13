@@ -40,4 +40,12 @@ function getGameMasters() {
   return gameMastersRaw.split(';');
 }
 
-module.exports = { setGameState, getGameChannels, getGameMasters };
+/**
+ * Retrieves the bot's current name
+ * @returns {String}
+ */
+function getBotName() {
+	return process.env.BOT_NAME;
+}
+
+module.exports = { setGameState, getGameChannels, getGameMasters, getBotName };
