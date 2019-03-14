@@ -6,6 +6,7 @@ const Game = require('../models/game/game');
 const Character = require('../models/game/character');
 
 const damageCalculator = require('../dragon-sword/combat/damage-calculator');
+const accuracyCalculator = require('../dragon-sword/combat/accuracy-calculator');
 const statTool = require('../dragon-sword/characters/stats');
 
 // utils
@@ -13,21 +14,6 @@ const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
 const combatUtils = require('../utils/combat-utils');
-
-/**
- * Calculates a random result for whether a character's attack would hit a monster
- * @param {Character} attackingCharacter Character model object attacking monster
- * @returns {Boolean} true if attack would hit, false if attack would miss
- */
-function rollCharacterHitMonster(attackingCharacter) {
-	const stats = statTool.getCharacterStats(attackingCharacter);
-	// chance for character's attack to hit
-	const hitChance = combatUtils.calculateHitChance(stats);
-	// rng
-	const dieRoll = combatUtils.rollDie();
-
-	return combatUtils.wasHit(hitChance, dieRoll);
-}
 
 /**
  * Calculates amount of gold a character would receive for killing a monster
@@ -74,7 +60,7 @@ exports.run = (client, message, args) => {
             const charClass = characterUtils.getCharacterClass(character);
 
 	    // == calculations begin here ==
-	    const hitsEnemy = rollCharacterHitMonster(character);
+	    const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(character);
 	    const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(character);
 	    // == calculations end here ==
 

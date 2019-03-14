@@ -1,6 +1,5 @@
 // utils
 const levels = require('./levels');
-const characterUtils = require('../../utils/character-utils');
 const classes = require('../../constants/character-classes');
 
 /**
