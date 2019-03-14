@@ -13,7 +13,6 @@ const statTool = require('../dragon-sword/characters/stats');
 const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
-const combatUtils = require('../utils/combat-utils');
 
 /**
  * Calculates amount of gold a character would receive for killing a monster
