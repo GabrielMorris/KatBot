@@ -8,12 +8,13 @@ const Character = require('../models/game/character');
 const damageCalculator = require('../dragon-sword/combat/damage-calculator');
 const accuracyCalculator = require('../dragon-sword/combat/accuracy-calculator');
 const rewards = require('../dragon-sword/combat/rewards');
-const statTool = require('../dragon-sword/characters/stats');
+const levels = require('../dragon-sword/characters/levels');
 
 // utils
 const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
+
 
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
@@ -66,10 +67,10 @@ exports.run = (client, message, args) => {
             // If we hit the enemy and monster health is <= 0
             if (hitsEnemy && game.monster.health - characterDamageRoll <= 0) {
               // Get the character's current level
-              const currentLevel = characterUtils.getCharacterLevel(character);
+              const currentLevel = levels.getCharacterLevel(character);
 
               // Reward XP
-              character.experience += monster.xpValue;
+	      rewards.rewardCharacterExperience(character, monster.xpValue);
 
               // Reward gold
               const goldEarned = rewards.calculateCharacterRewardGold(

@@ -15,6 +15,17 @@ function calculateCharacterRewardGold(character, monster) {
   return goldEarned;
 }
 
+/**
+ * Grants experience to a character
+ * @param {Character} rewardCharacter Character model object to grant experience to
+ * @returns {Character} Character model object with updated experience
+ */
+function rewardCharacterExperience(rewardCharacter, experience) {
+      rewardCharacter.experience += experience;
+      return rewardCharacter;
+}
+
 module.exports = {
-	calculateCharacterRewardGold
+	calculateCharacterRewardGold,
+	rewardCharacterExperience
 }
