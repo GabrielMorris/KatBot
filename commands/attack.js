@@ -5,6 +5,9 @@
 const Game = require('../models/game/game');
 const Character = require('../models/game/character');
 
+const damageCalculator = require('../dragon-sword/combat/damage-calculator');
+const statTool = require('../dragon-sword/characters/stats');
+
 // utils
 const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
@@ -12,25 +15,12 @@ const embedUtils = require('../utils/embed-utils');
 const combatUtils = require('../utils/combat-utils');
 
 /**
- * Gets a character's stats as an object
- * @param {Character} character Character to retrieve stats from
- * @returns {Object}
- */
-function getCharacterStats(character) {
-	// character stats
-	return characterUtils.calculateStats(
-	character,
-	characterUtils.getCharacterLevel(character)
-	);
-}
-
-/**
  * Calculates a random result for whether a character's attack would hit a monster
  * @param {Character} attackingCharacter Character model object attacking monster
  * @returns {Boolean} true if attack would hit, false if attack would miss
  */
 function rollCharacterHitMonster(attackingCharacter) {
-	const stats = getCharacterStats(attackingCharacter);
+	const stats = statTool.getCharacterStats(attackingCharacter);
 	// chance for character's attack to hit
 	const hitChance = combatUtils.calculateHitChance(stats);
 	// rng
@@ -40,25 +30,13 @@ function rollCharacterHitMonster(attackingCharacter) {
 }
 
 /**
- * Calculates damage caused by character attacking a monster
- * @param {Character} attackingCharacter Character model object attacking monster
- * @returns {Number} Integer representing amount of damage attack would cause
- */
-function rollCharacterDamageMonster(attackingCharacter) {
-	const stats = getCharacterStats(attackingCharacter);
-	const combinedStats = stats.STR + stats.AGI;
-
-	return combatUtils.attackDamage(combinedStats);
-}
-
-/**
  * Calculates amount of gold a character would receive for killing a monster
  * @param {Character} character Character model object
  * @param {Monster} monster Monster model object
  * @returns {Number} Integer representing amount of gold character would gain
  */
 function calculateCharacterRewardGold(character, monster) {
-	const stats = getCharacterStats(character);
+	const stats = statTool.getCharacterStats(character);
 	// calculate gold gain from character stats and monster health
 	const goldEarned = characterUtils.calculateGoldGain(stats, monster.health);
 
@@ -97,7 +75,7 @@ exports.run = (client, message, args) => {
 
 	    // == calculations begin here ==
 	    const hitsEnemy = rollCharacterHitMonster(character);
-	    const characterDamageRoll = rollCharacterDamageMonster(character);
+	    const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(character);
 	    // == calculations end here ==
 
             // Attack monster
