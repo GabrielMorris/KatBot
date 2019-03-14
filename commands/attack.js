@@ -69,15 +69,8 @@ exports.run = (client, message, args) => {
               // Get the character's current level
               const currentLevel = levels.getCharacterLevel(character);
 
-              // Reward XP
-	      rewards.rewardCharacterExperience(character, monster.xpValue);
-
-              // Reward gold
-              const goldEarned = rewards.calculateCharacterRewardGold(
-                character,
-                game.monster
-              );
-              character.gold += goldEarned;
+              // Grant rewards post-combat
+	      const combatRewardsEarned = rewards.rewardCharacterCombat(character, monster);
 
               // Get the level again
               const newLevel = characterUtils.getCharacterLevel(character);
@@ -106,7 +99,7 @@ exports.run = (client, message, args) => {
               character.save();
 
               // Return true so the then statements will execute
-              return { goldEarned: goldEarned };
+              return { goldEarned: combatRewardsEarned.gold };
             } else {
               // If player did no damage return so we don't make an extra DB query
               if (!hitsEnemy || characterDamageRoll === 0) return false;
