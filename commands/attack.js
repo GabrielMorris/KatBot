@@ -1,6 +1,3 @@
-// libraries etc.
-const random = require('random');
-
 // models
 const Game = require('../models/game/game');
 const Character = require('../models/game/character');
@@ -14,7 +11,45 @@ const levels = require('../dragon-sword/characters/levels');
 const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
+const rngUtils = require('../utils/rng-utils');
 
+/**
+ * Check whether a character must rest in order to fight
+ * @param {Character} checkCharacter Character to check status of
+ * @returns {Boolean} true if character must rest to fight further, false if character can fight without resting
+ */
+function checkCombatCharacterMustRest(checkCharacter) {
+	return (checkCharacter.health === 0 ? true : false);
+}
+
+/**
+ * Check whether a monster is dead
+ * @param {Monster} checkMonster Monster to check status of
+ * @returns {Boolean} true if monster is dead, false if monster is alive
+ */
+function checkMonsterDead(checkMonster) {
+	return (checkMonster.health === 0 ? true : false);
+}
+
+/**
+ * Damage a character via a monster attack
+ * @param {Monster} attackingMonster Monster model attacking the character
+ * @param {Character} targetCharacter Character model being attacked
+ * @returns {Number} Number representing amount of damage done to character
+ */
+function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
+	// Don't let damage take a character into negative HP
+	const monsterDamageRoll = damageCalculator.rollMonsterDamageCharacter(attackingMonster);
+	const cappedMonsterDamage =
+	targetCharacter.health - monsterDamageRoll < 0
+	? targetCharacter.health
+	: monsterDamageRoll;
+
+	// Damage character
+	targetCharacter.health -= cappedMonsterDamage;
+
+	return cappedMonsterDamage;
+}
 
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
@@ -31,30 +66,26 @@ exports.run = (client, message, args) => {
         memberID: author.id
       })
         .then(character => {
-          // If we have no character send a message explaining how to register
+          // If we have no character send a message explaining how to register and exit step
           if (!character) {
             channel.send(embedUtils.noCharacterEmbed());
 
-            // Return false so the next then statements dont execute
             return false;
-          } else if (character.health === 0) {
-            // If character's got no HP send a must rest embed
+          }
+	// If character's got no HP send a must rest embed and exit step
+	  else if (checkCombatCharacterMustRest(character)) {
             channel.send(embedUtils.mustRestEmbed(author.username));
 
             return false;
-          } else {
+          }
+	  // execute attack
+	  else {
             const charClass = characterUtils.getCharacterClass(character);
 
-            // == calculations begin here ==
-            const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
-              character
-            );
-            const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
-              character
-            );
-            // == calculations end here ==
+            const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(character);
+            const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(character);
 
-            // Attack monster
+            // Attack monster message
             channel.send(
               embedUtils.combatEmbed(
                 author.username,
@@ -65,7 +96,7 @@ exports.run = (client, message, args) => {
             );
 
             // If we hit the enemy and monster health is <= 0
-            if (hitsEnemy && game.monster.health - characterDamageRoll <= 0) {
+            if (hitsEnemy && (game.monster.health - characterDamageRoll <= 0)) {
               // Get the character's current level
               const currentLevel = levels.getCharacterLevel(character);
 
@@ -105,27 +136,19 @@ exports.run = (client, message, args) => {
               if (!hitsEnemy || characterDamageRoll === 0) return false;
 
               // TODO: move this logic to a util
-              const dieRoll = random.float();
+              const dieRoll = rngUtils.rollInt(1);
+	      console.log('monster hit die roll: '+dieRoll);
 
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
-                // Don't let damage take a character into negative HP
-                const monsterDamageRoll = damageCalculator.rollMonsterDamageCharacter(
-                  game.monster
-                );
-                const cappedMonsterDamage =
-                  character.health - monsterDamageRoll < 0
-                    ? character.health
-                    : monsterDamageRoll;
-
-                character.health -= cappedMonsterDamage;
+		const monsterDamageDealt = combatMonsterAttackCharacter(game.monster, character);
 
                 channel.send(
                   embedUtils.monsterAttackEmbed(
                     author.username,
                     character,
                     game.monster,
-                    characterDamageRoll
+                    monsterDamageDealt
                   )
                 );
 
@@ -136,8 +159,9 @@ exports.run = (client, message, args) => {
                 character.save();
               }
 
-              game.monster.health -= characterDamageRoll;
 
+		game.monster.health -= characterDamageRoll;
+		console.log('monster health now '+game.monster.health);
               // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
               game.markModified('monster');
               game.save();
