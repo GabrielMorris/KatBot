@@ -1,5 +1,5 @@
 // libraries etc.
-  const random = require('random');
+const random = require('random');
 
 // models
 const Game = require('../models/game/game');
@@ -21,15 +21,14 @@ const embedUtils = require('../utils/embed-utils');
  * @returns {Number} Integer representing amount of gold character would gain
  */
 function calculateCharacterRewardGold(character, monster) {
-	const stats = statTool.getCharacterStats(character);
-	// calculate gold gain from character stats and monster health
-	const goldEarned = characterUtils.calculateGoldGain(stats, monster.health);
+  const stats = statTool.getCharacterStats(character);
+  // calculate gold gain from character stats and monster health
+  const goldEarned = characterUtils.calculateGoldGain(stats, monster.health);
 
-	return goldEarned;
+  return goldEarned;
 }
 
 exports.run = (client, message, args) => {
-
   const { channel, guild, author } = message;
 
   // If monster is alive
@@ -58,10 +57,14 @@ exports.run = (client, message, args) => {
           } else {
             const charClass = characterUtils.getCharacterClass(character);
 
-	    // == calculations begin here ==
-	    const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(character);
-	    const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(character);
-	    // == calculations end here ==
+            // == calculations begin here ==
+            const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
+              character
+            );
+            const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
+              character
+            );
+            // == calculations end here ==
 
             // Attack monster
             channel.send(
@@ -82,7 +85,10 @@ exports.run = (client, message, args) => {
               character.experience += monster.xpValue;
 
               // Reward gold
-              const goldEarned = calculateCharacterRewardGold(character, game.monster);
+              const goldEarned = calculateCharacterRewardGold(
+                character,
+                game.monster
+              );
               character.gold += goldEarned;
 
               // Get the level again
@@ -91,7 +97,11 @@ exports.run = (client, message, args) => {
               // If the levels are different they've leveled up
               if (currentLevel.level !== newLevel.level) {
                 // Get the old/new stats object and level up the character
-                const stats = characterUtils.handleLevelUp(character, currentLevel, newLevel);
+                const stats = characterUtils.handleLevelUp(
+                  character,
+                  currentLevel,
+                  newLevel
+                );
 
                 // Create and send the level up embed
                 const lvlUpEmbed = embedUtils.levelUpEmbed(
@@ -119,7 +129,9 @@ exports.run = (client, message, args) => {
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
                 // Don't let damage take a character into negative HP
-                const monsterDamageRoll = combatUtils.calculateMonsterDamage(game.monster);
+                const monsterDamageRoll = combatUtils.calculateMonsterDamage(
+                  game.monster
+                );
                 const cappedMonsterDamage =
                   character.health - monsterDamageRoll < 0
                     ? character.health
@@ -164,7 +176,11 @@ exports.run = (client, message, args) => {
           if (!goldEarned) return goldEarned;
 
           channel.send(
-            embedUtils.combatRewardEmbed(author.username, monster.xpValue, goldEarned)
+            embedUtils.combatRewardEmbed(
+              author.username,
+              monster.xpValue,
+              goldEarned
+            )
           );
 
           return true;

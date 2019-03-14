@@ -5,9 +5,9 @@ const random = require('random');
  * @returns {Number} Random float between 0 and 1
  */
 function rollPercentage() {
-	return random.float(0, 1);
+  return random.float(0, 1);
 }
 
 module.exports = {
-	rollPercentage
+  rollPercentage
 };
