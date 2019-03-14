@@ -18,8 +18,7 @@ exports.run = (client, message, args) => {
         }`
       );
     });
-  }
-  else {
-	  message.channel.send('You do not have permission to use this command.');
+  } else {
+    message.channel.send('You do not have permission to use this command.');
   }
 };

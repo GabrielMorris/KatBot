@@ -1,35 +1,57 @@
+// models
+const Game = require('../models/game/game');
+const Character = require('../models/game/character');
+
+const damageCalculator = require('../dragon-sword/combat/damage-calculator');
+const accuracyCalculator = require('../dragon-sword/combat/accuracy-calculator');
+const rewards = require('../dragon-sword/combat/rewards');
+const levels = require('../dragon-sword/characters/levels');
+
+// utils
+const stateUtils = require('../utils/state-utils');
+const characterUtils = require('../utils/character-utils');
+const embedUtils = require('../utils/embed-utils');
+const rngUtils = require('../utils/rng-utils');
+
+/**
+ * Check whether a character must rest in order to fight
+ * @param {Character} checkCharacter Character to check status of
+ * @returns {Boolean} true if character must rest to fight further, false if character can fight without resting
+ */
+function checkCombatCharacterMustRest(checkCharacter) {
+	return (checkCharacter.health === 0 ? true : false);
+}
+
+/**
+ * Check whether a monster is dead
+ * @param {Monster} checkMonster Monster to check status of
+ * @returns {Boolean} true if monster is dead, false if monster is alive
+ */
+function checkMonsterDead(checkMonster) {
+	return (checkMonster.health === 0 ? true : false);
+}
+
+/**
+ * Damage a character via a monster attack
+ * @param {Monster} attackingMonster Monster model attacking the character
+ * @param {Character} targetCharacter Character model being attacked
+ * @returns {Number} Number representing amount of damage done to character
+ */
+function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
+	// Don't let damage take a character into negative HP
+	const monsterDamageRoll = damageCalculator.rollMonsterDamageCharacter(attackingMonster);
+	const cappedMonsterDamage =
+	targetCharacter.health - monsterDamageRoll < 0
+	? targetCharacter.health
+	: monsterDamageRoll;
+
+	// Damage character
+	targetCharacter.health -= cappedMonsterDamage;
+
+	return cappedMonsterDamage;
+}
+
 exports.run = (client, message, args) => {
-  const random = require('random');
-
-  // Models
-  const Game = require('../models/game/game');
-  const Character = require('../models/game/character');
-
-  const { setGameState } = require('../utils/state-utils');
-  const {
-    getCharacterClass,
-    getCharacterLevel,
-    handleLevelUp,
-    calculateStats,
-    calculateGoldGain
-  } = require('../utils/character-utils');
-  const {
-    levelUpEmbed,
-    combatRewardEmbed,
-    combatOutroEmbed,
-    combatEmbed,
-    noCharacterEmbed,
-    mustRestEmbed,
-    monsterAttackEmbed
-  } = require('../utils/embed-utils');
-  const {
-    calculateHitChance,
-    rollDie,
-    wasHit,
-    attackDamage,
-    calculateMonsterDamage
-  } = require('../utils/combat-utils');
-
   const { channel, guild, author } = message;
 
   // If monster is alive
@@ -44,35 +66,28 @@ exports.run = (client, message, args) => {
         memberID: author.id
       })
         .then(character => {
-          // If we have no character send a message explaining how to register
+          // If we have no character send a message explaining how to register and exit step
           if (!character) {
-            channel.send(noCharacterEmbed());
-
-            // Return false so the next then statements dont execute
-            return false;
-          } else if (character.health === 0) {
-            // If character's got no HP send a must rest embed
-            channel.send(mustRestEmbed(author.username));
+            channel.send(embedUtils.noCharacterEmbed());
 
             return false;
-          } else {
-            const charClass = getCharacterClass(character);
+          }
+	// If character's got no HP send a must rest embed and exit step
+	  else if (checkCombatCharacterMustRest(character)) {
+            channel.send(embedUtils.mustRestEmbed(author.username));
 
-            const stats = calculateStats(
-              character,
-              getCharacterLevel(character)
-            );
-            const combinedStats = stats.STR + stats.AGI;
+            return false;
+          }
+	  // execute attack
+	  else {
+            const charClass = characterUtils.getCharacterClass(character);
 
-            // Calculate hit chance and damage
-            const hitChance = calculateHitChance(stats);
-            const dieRoll = rollDie();
-            const hitsEnemy = wasHit(hitChance, dieRoll);
-            const characterDamageRoll = attackDamage(combinedStats);
+            const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(character);
+            const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(character);
 
-            // Attack monster
+            // Attack monster message
             channel.send(
-              combatEmbed(
+              embedUtils.combatEmbed(
                 author.username,
                 monster,
                 hitsEnemy ? characterDamageRoll : 0,
@@ -81,27 +96,27 @@ exports.run = (client, message, args) => {
             );
 
             // If we hit the enemy and monster health is <= 0
-            if (hitsEnemy && game.monster.health - characterDamageRoll <= 0) {
+            if (hitsEnemy && (game.monster.health - characterDamageRoll <= 0)) {
               // Get the character's current level
-              const currentLevel = getCharacterLevel(character);
+              const currentLevel = levels.getCharacterLevel(character);
 
-              // Reward XP
-              character.experience += monster.xpValue;
-
-              // Reward gold
-              const goldEarned = calculateGoldGain(stats, monsterBaseHealth);
-              character.gold += goldEarned;
+              // Grant rewards post-combat
+	      const combatRewardsEarned = rewards.rewardCharacterCombat(character, monster);
 
               // Get the level again
-              const newLevel = getCharacterLevel(character);
+              const newLevel = characterUtils.getCharacterLevel(character);
 
               // If the levels are different they've leveled up
               if (currentLevel.level !== newLevel.level) {
                 // Get the old/new stats object and level up the character
-                const stats = handleLevelUp(character, currentLevel, newLevel);
+                const stats = characterUtils.handleLevelUp(
+                  character,
+                  currentLevel,
+                  newLevel
+                );
 
                 // Create and send the level up embed
-                const lvlUpEmbed = levelUpEmbed(
+                const lvlUpEmbed = embedUtils.levelUpEmbed(
                   currentLevel,
                   newLevel,
                   stats,
@@ -115,43 +130,38 @@ exports.run = (client, message, args) => {
               character.save();
 
               // Return true so the then statements will execute
-              return { goldEarned: goldEarned };
+              return { goldEarned: combatRewardsEarned.gold };
             } else {
               // If player did no damage return so we don't make an extra DB query
               if (!hitsEnemy || characterDamageRoll === 0) return false;
 
               // TODO: move this logic to a util
-              const dieRoll = random.float();
+              const dieRoll = rngUtils.rollInt(1);
+	      console.log('monster hit die roll: '+dieRoll);
 
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
-                // Don't let damage take a character into negative HP
-                const monsterDamageRoll = calculateMonsterDamage(game.monster);
-                const cappedMonsterDamage =
-                  character.health - monsterDamageRoll < 0
-                    ? character.health
-                    : monsterDamageRoll;
-
-                character.health -= cappedMonsterDamage;
+		const monsterDamageDealt = combatMonsterAttackCharacter(game.monster, character);
 
                 channel.send(
-                  monsterAttackEmbed(
+                  embedUtils.monsterAttackEmbed(
                     author.username,
                     character,
                     game.monster,
-                    characterDamageRoll
+                    monsterDamageDealt
                   )
                 );
 
                 if (character.health === 0) {
-                  channel.send(mustRestEmbed(author.username));
+                  channel.send(embedUtils.mustRestEmbed(author.username));
                 }
 
                 character.save();
               }
 
-              game.monster.health -= characterDamageRoll;
 
+		game.monster.health -= characterDamageRoll;
+		console.log('monster health now '+game.monster.health);
               // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
               game.markModified('monster');
               game.save();
@@ -163,7 +173,7 @@ exports.run = (client, message, args) => {
         .then(hasCharObj => {
           if (!hasCharObj) return hasCharObj;
 
-          channel.send(combatOutroEmbed(monster));
+          channel.send(embedUtils.combatOutroEmbed(monster));
 
           return hasCharObj.goldEarned;
         })
@@ -171,7 +181,11 @@ exports.run = (client, message, args) => {
           if (!goldEarned) return goldEarned;
 
           channel.send(
-            combatRewardEmbed(author.username, monster.xpValue, goldEarned)
+            embedUtils.combatRewardEmbed(
+              author.username,
+              monster.xpValue,
+              goldEarned
+            )
           );
 
           return true;
@@ -179,7 +193,7 @@ exports.run = (client, message, args) => {
         .then(hasChar => {
           if (!hasChar) return;
 
-          setGameState(game, false);
+          stateUtils.setGameState(game, false);
         });
     } else {
       channel.send('There is no monster!');
