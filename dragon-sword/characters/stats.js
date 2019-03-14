@@ -1,4 +1,5 @@
 // utils
+const levels = require('./levels');
 const characterUtils = require('../../utils/character-utils');
 const classes = require('../../constants/character-classes');
 
@@ -37,7 +38,7 @@ function calculateStats(character, levelObj) {
 function getCharacterStats(character) {
 	return calculateStats(
 	character,
-	characterUtils.getCharacterLevel(character)
+	levels.getCharacterLevel(character)
 	);
 }
 
