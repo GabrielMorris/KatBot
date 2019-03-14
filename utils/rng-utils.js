@@ -14,7 +14,7 @@ function rollPercentage() {
  * @returns {Number} Random integer between 0 and max (exclusive)
  */
 function rollInt(max) {
-	return random.int(0, max);
+  return random.int(0, max);
 }
 
 module.exports = {
