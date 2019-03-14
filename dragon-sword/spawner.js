@@ -6,7 +6,7 @@ const Monster = require('../models/game/monster');
 const { randomMonster } = require('../utils/utils');
 const { setGameState } = require('../utils/state-utils');
 const { monsterIntro } = require('../utils/narrative-utils');
-const { monsterEmbed } = require('../utils/embed-utils');
+const { monsterEmbed, bossEmbed } = require('../utils/embed-utils');
 
 /**
  * Spawns a new monster into game state and sends an intro message to specified channel
@@ -27,7 +27,11 @@ function spawner(channel) {
           // Generate the monster intro
           monsterIntro(monster).then(intro => {
             // Then send the intro and the monster embed to the channel
-            channel.send(monsterEmbed(monster, intro));
+            if (monster.isBoss) {
+              channel.send(bossEmbed(monster, intro));
+            } else {
+              channel.send(monsterEmbed(monster, intro));
+            }
           });
         });
     })
