@@ -1,14 +1,17 @@
-exports.run = (client, message, args) => {
+	// libraries etc.
   const random = require('random');
 
-  // Models
+  // models
   const Game = require('../models/game/game');
   const Character = require('../models/game/character');
 
+  // utils
   const stateUtils = require('../utils/state-utils');
   const characterUtils = require('../utils/character-utils');
   const embedUtils = require('../utils/embed-utils');
   const combatUtils = require('../utils/combat-utils');
+
+exports.run = (client, message, args) => {
 
   const { channel, guild, author } = message;
 
