@@ -1,15 +1,69 @@
-	// libraries etc.
+// libraries etc.
   const random = require('random');
 
-  // models
-  const Game = require('../models/game/game');
-  const Character = require('../models/game/character');
+// models
+const Game = require('../models/game/game');
+const Character = require('../models/game/character');
 
-  // utils
-  const stateUtils = require('../utils/state-utils');
-  const characterUtils = require('../utils/character-utils');
-  const embedUtils = require('../utils/embed-utils');
-  const combatUtils = require('../utils/combat-utils');
+// utils
+const stateUtils = require('../utils/state-utils');
+const characterUtils = require('../utils/character-utils');
+const embedUtils = require('../utils/embed-utils');
+const combatUtils = require('../utils/combat-utils');
+
+/**
+ * Gets a character's stats as an object
+ * @param {Character} character Character to retrieve stats from
+ * @returns {Object}
+ */
+function getCharacterStats(character) {
+	// character stats
+	return characterUtils.calculateStats(
+	character,
+	characterUtils.getCharacterLevel(character)
+	);
+}
+
+/**
+ * Calculates a random result for whether a character's attack would hit a monster
+ * @param {Character} attackingCharacter Character model object attacking monster
+ * @returns {Boolean} true if attack would hit, false if attack would miss
+ */
+function rollCharacterHitMonster(attackingCharacter) {
+	const stats = getCharacterStats(attackingCharacter);
+	// chance for character's attack to hit
+	const hitChance = combatUtils.calculateHitChance(stats);
+	// rng
+	const dieRoll = combatUtils.rollDie();
+
+	return combatUtils.wasHit(hitChance, dieRoll);
+}
+
+/**
+ * Calculates damage caused by character attacking a monster
+ * @param {Character} attackingCharacter Character model object attacking monster
+ * @returns {Number} Integer representing amount of damage attack would cause
+ */
+function rollCharacterDamageMonster(attackingCharacter) {
+	const stats = getCharacterStats(attackingCharacter);
+	const combinedStats = stats.STR + stats.AGI;
+
+	return combatUtils.attackDamage(combinedStats);
+}
+
+/**
+ * Calculates amount of gold a character would receive for killing a monster
+ * @param {Character} character Character model object
+ * @param {Monster} monster Monster model object
+ * @returns {Number} Integer representing amount of gold character would gain
+ */
+function calculateCharacterRewardGold(character, monster) {
+	const stats = getCharacterStats(character);
+	// calculate gold gain from character stats and monster health
+	const goldEarned = characterUtils.calculateGoldGain(stats, monster.health);
+
+	return goldEarned;
+}
 
 exports.run = (client, message, args) => {
 
@@ -41,17 +95,10 @@ exports.run = (client, message, args) => {
           } else {
             const charClass = characterUtils.getCharacterClass(character);
 
-            const stats = characterUtils.calculateStats(
-              character,
-              characterUtils.getCharacterLevel(character)
-            );
-            const combinedStats = stats.STR + stats.AGI;
-
-            // Calculate hit chance and damage
-            const hitChance = combatUtils.calculateHitChance(stats);
-            const dieRoll = combatUtils.rollDie();
-            const hitsEnemy = combatUtils.wasHit(hitChance, dieRoll);
-            const characterDamageRoll = combatUtils.attackDamage(combinedStats);
+	    // == calculations begin here ==
+	    const hitsEnemy = rollCharacterHitMonster(character);
+	    const characterDamageRoll = rollCharacterDamageMonster(character);
+	    // == calculations end here ==
 
             // Attack monster
             channel.send(
@@ -72,7 +119,7 @@ exports.run = (client, message, args) => {
               character.experience += monster.xpValue;
 
               // Reward gold
-              const goldEarned = characterUtils.calculateGoldGain(stats, monsterBaseHealth);
+              const goldEarned = calculateCharacterRewardGold(character, game.monster);
               character.gold += goldEarned;
 
               // Get the level again
