@@ -8,6 +8,15 @@ function rollPercentage() {
   return random.float(0, 1);
 }
 
+/**
+ * Rolls for an integer between 0 and max
+ * @param {Number} max Exclusive upper bound
+ * @returns {Number} Random integer between 0 and max (exclusive)
+ */
+function rollInt(max) {
+	return random.int(0, max);
+}
+
 module.exports = {
   rollPercentage
 };
