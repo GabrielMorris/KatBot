@@ -18,5 +18,6 @@ function rollInt(max) {
 }
 
 module.exports = {
-  rollPercentage
+  rollPercentage,
+  rollInt
 };

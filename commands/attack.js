@@ -7,26 +7,13 @@ const Character = require('../models/game/character');
 
 const damageCalculator = require('../dragon-sword/combat/damage-calculator');
 const accuracyCalculator = require('../dragon-sword/combat/accuracy-calculator');
+const rewards = require('../dragon-sword/combat/rewards');
 const statTool = require('../dragon-sword/characters/stats');
 
 // utils
 const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
-
-/**
- * Calculates amount of gold a character would receive for killing a monster
- * @param {Character} character Character model object
- * @param {Monster} monster Monster model object
- * @returns {Number} Integer representing amount of gold character would gain
- */
-function calculateCharacterRewardGold(character, monster) {
-  const stats = statTool.getCharacterStats(character);
-  // calculate gold gain from character stats and monster health
-  const goldEarned = characterUtils.calculateGoldGain(stats, monster.health);
-
-  return goldEarned;
-}
 
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
@@ -85,7 +72,7 @@ exports.run = (client, message, args) => {
               character.experience += monster.xpValue;
 
               // Reward gold
-              const goldEarned = calculateCharacterRewardGold(
+              const goldEarned = rewards.calculateCharacterRewardGold(
                 character,
                 game.monster
               );
@@ -129,7 +116,7 @@ exports.run = (client, message, args) => {
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
                 // Don't let damage take a character into negative HP
-                const monsterDamageRoll = combatUtils.calculateMonsterDamage(
+                const monsterDamageRoll = damageCalculator.rollMonsterDamageCharacter(
                   game.monster
                 );
                 const cappedMonsterDamage =

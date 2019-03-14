@@ -33,6 +33,26 @@ function calculateCharacterAttackDamage(attackerStats) {
 }
 
 /**
+ * Rolls damage caused by a monster attacking a character
+ * @param {Monster} attackingMonster Monster model object attacking character
+ * @returns {Number} Integer representing amount of damage attack would cause
+ */
+function rollMonsterDamageCharacter(attackingMonster) {
+	const baseDamage = attackingMonster.damage;
+	// random deviation +/- 20%
+	const randomRange = rngUtils.rollPercentage(0, 0.21);
+	const deviation = randomRange * baseDamage;
+	// adds or subtracts the damage deviation randomly
+	const floatDamage =
+	damageType() === 'positive'
+	? baseDamage + deviation
+	: baseDamage - deviation;
+
+	// round up damage
+	return Math.ceil(floatDamage);
+}
+
+/**
  * Rolls damage caused by character attacking a monster
  * @param {Character} attackingCharacter Character model object attacking monster
  * @returns {Number} Integer representing amount of damage attack would cause
@@ -43,5 +63,6 @@ function rollCharacterDamageMonster(attackingCharacter) {
 }
 
 module.exports = {
+	rollMonsterDamageCharacter,
 	rollCharacterDamageMonster
 };
