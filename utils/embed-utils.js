@@ -256,13 +256,14 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
 function combatEmbed(username, monster, damage, thumbnail) {
   const dead = monster.healthCurrent - damage <= 0 ? true : false;
 
-  const text =
+  let text =
     damage > 0
       ? `**${username}** hit **${monster.name}** for **${damage} DMG**, ${
           dead ? 'killing' : 'wounding'
         } it!`
       : `**${username}** missed **${monster.name}**!`;
 
+      text += `\n**Monster HP**: ${monster.healthCurrent}/${monster.health}`
   return gameEmbed(
     {
       title: '**COMBAT**',

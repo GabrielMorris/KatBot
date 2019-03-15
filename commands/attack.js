@@ -92,6 +92,10 @@ exports.run = (client, message, args) => {
               character
             );
 
+	    if (hitsEnemy) {
+		game.monster.healthCurrent -= characterDamageRoll;
+	    }
+
             // Attack monster message
             channel.send(
               embedUtils.combatEmbed(
@@ -105,7 +109,7 @@ exports.run = (client, message, args) => {
             // If we hit the enemy and monster health is <= 0
             if (
               hitsEnemy &&
-              game.monster.healthCurrent - characterDamageRoll <= 0
+              game.monster.healthCurrent <= 0
             ) {
               // Get the character's current level
               const currentLevel = levels.getCharacterLevel(character);
@@ -174,7 +178,6 @@ exports.run = (client, message, args) => {
                 character.save();
               }
 
-              game.monster.healthCurrent -= characterDamageRoll;
               // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
               game.markModified('monster');
               game.save();
