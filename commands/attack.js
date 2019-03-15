@@ -23,12 +23,33 @@ function checkCombatCharacterMustRest(checkCharacter) {
 }
 
 /**
+ * Rolls whether a monster retaliates to a character attack (currently 50% chance)
+ * @param {Monster} checkMonster Monster to check retaliation from
+ * @returns {Boolean} true if monster would attack, false if monster would not attack
+ */
+function rollMonsterRetaliates(checkMonster) {
+	// 50-50 chance
+	const dieRoll = rngUtils.rollInt(1);
+
+	return (dieRoll < 1 ? true : false);
+}
+
+/**
  * Check whether a monster is dead
  * @param {Monster} checkMonster Monster to check status of
  * @returns {Boolean} true if monster is dead, false if monster is alive
  */
 function checkMonsterDead(checkMonster) {
   return checkMonster.healthCurrent <= 0 ? true : false;
+}
+
+/**
+ * Check whether a character is dead
+ * @param {Character} checkCharacter Character to check status of
+ * @returns {Boolean} true if character is dead, false if character is alive
+ */
+function checkCharacterDead(checkCharacter) {
+  return checkCharacter.health <= 0 ? true : false;
 }
 
 /**
@@ -117,9 +138,7 @@ exports.run = (client, message, args) => {
           else {
             const charClass = characterUtils.getCharacterClass(character);
 
-	    // == attack here
 	    const characterAttack = combatCharacterAttackMonster(character, game.monster);
-
 
             // Attack monster message
             channel.send(
@@ -175,13 +194,14 @@ exports.run = (client, message, args) => {
               return { goldEarned: combatRewardsEarned.gold };
             } else {
               // If player did no damage return so we don't make an extra DB query
-              if (!characterAttack.hit || characterAttack.damageRoll === 0) return false;
+		if (!characterAttack.hit || characterAttack.damageRoll === 0) {
+		      return false;
+		}
 
-              // TODO: move this logic to a util
-              const dieRoll = rngUtils.rollInt(1);
+	      // monster attack check
+              const monsterRetaliates = rollMonsterRetaliates(game.monster);
 
-              // If roll was less than 0.2 monster will attack
-              if (dieRoll < 1) {
+              if (monsterRetaliates) {
                 const monsterAttack = combatMonsterAttackCharacter(
                   game.monster,
                   character
@@ -196,7 +216,7 @@ exports.run = (client, message, args) => {
                   )
                 );
 
-                if (character.health === 0) {
+                if (checkCharacterDead(character)) {
                   channel.send(embedUtils.mustRestEmbed(author.username));
                 }
 
