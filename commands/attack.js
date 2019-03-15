@@ -28,7 +28,31 @@ function checkCombatCharacterMustRest(checkCharacter) {
  * @returns {Boolean} true if monster is dead, false if monster is alive
  */
 function checkMonsterDead(checkMonster) {
-  return checkMonster.health === 0 ? true : false;
+  return checkMonster.healthCurrent <= 0 ? true : false;
+}
+
+/**
+ * Damage a monster via a character attack
+ * @param {Character} attackingCharacter Character model attacking the monster
+ * @param {Monster} targetMonster Monster model being attacked
+ * @returns {{hit: Boolean, damageRoll: Number}} Object containing information about the attack
+ */
+function combatCharacterAttackMonster(attackingCharacter, targetMonster) {
+    const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
+      attackingCharacter
+    );
+    const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
+      attackingCharacter
+    );
+
+    if (hitsEnemy) {
+	targetMonster.healthCurrent -= characterDamageRoll;
+    }
+
+    return {
+	    hit: hitsEnemy,
+	    damageRoll: characterDamageRoll
+    }
 }
 
 /**
@@ -85,31 +109,24 @@ exports.run = (client, message, args) => {
           else {
             const charClass = characterUtils.getCharacterClass(character);
 
-            const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
-              character
-            );
-            const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
-              character
-            );
+	    // == attack here
+	    const characterAttack = combatCharacterAttackMonster(character, game.monster);
 
-	    if (hitsEnemy) {
-		game.monster.healthCurrent -= characterDamageRoll;
-	    }
 
             // Attack monster message
             channel.send(
               embedUtils.combatEmbed(
                 author.username,
                 monster,
-                hitsEnemy ? characterDamageRoll : 0,
+                characterAttack.hit ? characterAttack.damageRoll : 0,
                 charClass.thumbnail
               )
             );
 
             // If we hit the enemy and monster health is <= 0
             if (
-              hitsEnemy &&
-              game.monster.healthCurrent <= 0
+              characterAttack.hit &&
+              checkMonsterDead(game.monster)
             ) {
               // Get the character's current level
               const currentLevel = levels.getCharacterLevel(character);
@@ -150,7 +167,7 @@ exports.run = (client, message, args) => {
               return { goldEarned: combatRewardsEarned.gold };
             } else {
               // If player did no damage return so we don't make an extra DB query
-              if (!hitsEnemy || characterDamageRoll === 0) return false;
+              if (!characterAttack.hit || characterAttack.damageRoll === 0) return false;
 
               // TODO: move this logic to a util
               const dieRoll = rngUtils.rollInt(1);

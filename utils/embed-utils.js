@@ -254,7 +254,7 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with character-initiated attack information
  */
 function combatEmbed(username, monster, damage, thumbnail) {
-  const dead = monster.healthCurrent - damage <= 0 ? true : false;
+  const dead = monster.healthCurrent <= 0 ? true : false;
 
   let text =
     damage > 0
