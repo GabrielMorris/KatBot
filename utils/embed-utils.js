@@ -3,8 +3,11 @@ const EmbedConsts = require('../constants/embeds');
 const levels = require('../constants/levels');
 const { capitalizeFirstLetter } = require('../utils/utils');
 const { gameEmbedThumbs } = require('../constants/game');
-const { getCharacterLevel, calculateStats } = require('./character-utils');
-const { calculateFlatHitChance } = require('./combat-utils');
+const { calculateStats } = require('./character-utils');
+const {
+  calculateFlatHitChance
+} = require('../dragon-sword/combat/accuracy-calculator');
+const { getCharacterLevel } = require('../dragon-sword/characters/levels');
 
 /* === EMBED CLASSES === */
 /**
@@ -189,6 +192,24 @@ function monsterEmbed(monster, intro) {
     .addField(
       '**NEW MONSTER**',
       `**${monster.name}** appeared with **${monster.health} HP**`
+    )
+    .addBlankField()
+    .addField('**NARRATIVE**', intro);
+}
+
+/**
+ * Creates an embed that displays information and narrative about a newly spawned boss
+ * @param {Boss} boss Monster model to fill monster information sheet section with
+ * @param {String} intro Intro narrative text to fill narrative section with
+ * @returns {Discord.RichEmbed} Discord RichEmbed filled with new monster and narrative information
+ */
+function bossEmbed(boss, intro) {
+  return new Discord.RichEmbed()
+    .setThumbnail(boss.thumbnail)
+    .setColor(EmbedConsts.color)
+    .addField(
+      '**BOSS ENCOUNTER**',
+      `**${boss.name}** appeared with **${boss.health} HP**`
     )
     .addBlankField()
     .addField('**NARRATIVE**', intro);
@@ -422,5 +443,6 @@ module.exports = {
   mustRestEmbed,
   monsterAttackEmbed,
   restEmbed,
-  cantRestEmbed
+  cantRestEmbed,
+  bossEmbed
 };

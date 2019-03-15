@@ -22,18 +22,7 @@ You must also provide a Discord bot token in the environment variable `TOKEN`
 
 ### Environment variables
 
-KatBot uses the module [dotenv](https://www.npmjs.com/package/dotenv) to securely manage environment variables. All environment variables should be placed in a local `.env` file (copied from sample env file [env.example](./env.example)); this file is ignored by Git and should remain **local-only**.
-
-#### List of environment variables used
-
-| Name | Description |
-| ---- | ----------- |
-| DB_URL | Database connection URL |
-| DB_USER | Database username |
-| DB_PASS | Database password |
-| TOKEN | Discord bot token |
-| GAME_CHANNELS | Discord Channel IDs (separated by semicolon) this bot runs on |
-| GAME_MASTERS | Discord User IDs (separated by semicolon) to grant game admin status to |
+KatBot uses the module [dotenv](https://www.npmjs.com/package/dotenv) to securely manage environment variables. All environment variables should be placed in a local `.env` file copied from sample env file [env.example](./env.example) (comments in this example file further describe the purpose of each variable). The `.env` file is ignored by Git and should remain **local-only**.
 
 ## Contribution
 

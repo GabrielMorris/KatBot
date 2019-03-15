@@ -1,8 +1,9 @@
 const fs = require('fs');
+const stateUtils = require('./utils/state-utils');
 
 module.exports = function CommandSystem() {
   // Specify the bot command prefix
-  const commandPrefix = ',';
+  const commandPrefix = stateUtils.getBotCommandPrefix();
   // Initialize an object to hold the list of commands
   var commandTable = {};
 
