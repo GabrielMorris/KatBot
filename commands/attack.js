@@ -113,7 +113,7 @@ exports.run = (client, message, args) => {
               );
 
               // Get the level again
-              const newLevel = characterUtils.getCharacterLevel(character);
+              const newLevel = levels.getCharacterLevel(character);
 
               // If the levels are different they've leveled up
               if (currentLevel.level !== newLevel.level) {

@@ -3,10 +3,11 @@ const EmbedConsts = require('../constants/embeds');
 const levels = require('../constants/levels');
 const { capitalizeFirstLetter } = require('../utils/utils');
 const { gameEmbedThumbs } = require('../constants/game');
-const { getCharacterLevel, calculateStats } = require('./character-utils');
+const { calculateStats } = require('./character-utils');
 const {
   calculateFlatHitChance
 } = require('../dragon-sword/combat/accuracy-calculator');
+const { getCharacterLevel } = require('../dragon-sword/characters/levels');
 
 /* === EMBED CLASSES === */
 /**

@@ -4,23 +4,6 @@ const levels = require('../constants/levels');
 const classes = require('../constants/character-classes');
 const { goldMultipliers } = require('../constants/game');
 
-/* === CHARACTER === */
-/**
- * Returns an object with information about a character's level
- * @param {Character} character Character model object to retrieve level information for
- * @returns {Object} Object representing character level information
- */
-function getCharacterLevel(character) {
-  return levels.find((level, index) => {
-    if (
-      character.experience >= level.threshold &&
-      character.experience < levels[index + 1].threshold
-    ) {
-      return true;
-    }
-  });
-}
-
 /**
  * Returns an object containing old and new stat information based on given character and level information
  * @param {Character} character Character model object to calculate stat information for
@@ -110,7 +93,6 @@ function calculateGoldGain(stats, monsterBaseHP) {
 }
 
 module.exports = {
-  getCharacterLevel,
   handleLevelUp,
   getCharacterClass,
   calculateGoldGain,
