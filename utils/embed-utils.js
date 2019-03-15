@@ -285,7 +285,7 @@ function combatEmbed(username, monster, damage, thumbnail) {
 function monsterAttackEmbed(username, character, monster, damage) {
     const charClass = characterUtils.getCharacterClass(character);
     const charStats = stats.getCharacterStats(character);
-  const dead = character.health - damage <= 0 ? true : false;
+  const dead = character.health <= 0 ? true : false;
   let pronouns;
 
   if (character.pronouns === 'male') pronouns = 'him';
