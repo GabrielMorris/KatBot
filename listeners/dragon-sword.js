@@ -78,7 +78,7 @@ module.exports = function DragonSword(client) {
               const monsterInitHP = monster.health;
               const monsterCantFleeThresholdPercentage = 0.5;
               const monsterCantFlee =
-                gameDoc.monster.health / monsterInitHP <
+                gameDoc.monster.healthCurrent / monsterInitHP <
                 monsterCantFleeThresholdPercentage
                   ? true
                   : false;

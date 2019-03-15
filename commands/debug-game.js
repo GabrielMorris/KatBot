@@ -12,8 +12,8 @@ exports.run = (client, message, args) => {
         `Guild: ${gameDoc.guildID}\nAlive: ${gameDoc.monsterAlive}\nMonster:${
           gameDoc.monster
             ? `${gameDoc.monster.name}\nHealth: ${
-                gameDoc.monster.health
-              }\nXP value:${gameDoc.monster.xpValue}`
+                gameDoc.monster.healthCurrent
+              }/${gameDoc.monster.health}\nXP value:${gameDoc.monster.xpValue}`
             : null
         }`
       );

@@ -61,6 +61,7 @@ exports.run = (client, message, args) => {
     if (game && game.monsterAlive) {
       const { monster } = game;
       const monsterBaseHealth = game.monster.health;
+      const monsterCurrentHealth = game.monster.healthCurrent;
 
       // See if we have a character on this guild
       Character.findOne({
@@ -102,7 +103,10 @@ exports.run = (client, message, args) => {
             );
 
             // If we hit the enemy and monster health is <= 0
-            if (hitsEnemy && game.monster.health - characterDamageRoll <= 0) {
+            if (
+              hitsEnemy &&
+              game.monster.healthCurrent - characterDamageRoll <= 0
+            ) {
               // Get the character's current level
               const currentLevel = levels.getCharacterLevel(character);
 
@@ -146,7 +150,6 @@ exports.run = (client, message, args) => {
 
               // TODO: move this logic to a util
               const dieRoll = rngUtils.rollInt(1);
-              console.log('monster hit die roll: ' + dieRoll);
 
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
@@ -171,8 +174,7 @@ exports.run = (client, message, args) => {
                 character.save();
               }
 
-              game.monster.health -= characterDamageRoll;
-              console.log('monster health now ' + game.monster.health);
+              game.monster.healthCurrent -= characterDamageRoll;
               // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
               game.markModified('monster');
               game.save();

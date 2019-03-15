@@ -191,7 +191,7 @@ function monsterEmbed(monster, intro) {
     .setColor(EmbedConsts.color)
     .addField(
       '**NEW MONSTER**',
-      `**${monster.name}** appeared with **${monster.health} HP**`
+      `**${monster.name}** appeared with **${monster.healthCurrent} HP**`
     )
     .addBlankField()
     .addField('**NARRATIVE**', intro);
@@ -254,7 +254,7 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with character-initiated attack information
  */
 function combatEmbed(username, monster, damage, thumbnail) {
-  const dead = monster.health - damage <= 0 ? true : false;
+  const dead = monster.healthCurrent - damage <= 0 ? true : false;
 
   const text =
     damage > 0
