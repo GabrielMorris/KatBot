@@ -6,14 +6,20 @@ const levels = require('../../constants/levels');
  * @returns {Object} Object representing character level information
  */
 function getCharacterLevel(character) {
-  return levels.find((level, index) => {
-    if (
-      character.experience >= level.threshold &&
-      character.experience < levels[index + 1].threshold
-    ) {
-      return true;
-    }
-  });
+	// cap at max level
+	const maxLevel = levels[levels.length - 1];
+	if (character.experience >= maxLevel.threshold) {
+		return maxLevel;
+	}
+	// otherwise search through levels table
+	return levels.find((level, index) => {
+		if (
+			character.experience >= level.threshold &&
+			character.experience < levels[index + 1].threshold
+		) {
+			return true;
+		}
+	});
 }
 
 module.exports = {

@@ -15,9 +15,10 @@ exports.run = (client, message, args) => {
 
   // TODO: move/remove these
   const {
-    calculateStats,
-    getCharacterLevel
+    calculateStats
   } = require('../utils/character-utils');
+
+  const { getCharacterLevel } = require('../dragon-sword/characters/levels');
 
   const { channel } = message;
 
