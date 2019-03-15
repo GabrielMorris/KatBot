@@ -35,7 +35,7 @@ function checkMonsterDead(checkMonster) {
  * Damage a monster via a character attack
  * @param {Character} attackingCharacter Character model attacking the monster
  * @param {Monster} targetMonster Monster model being attacked
- * @returns {{hit: Boolean, damageRoll: Number}} Object containing information about the attack
+ * @returns {{hit: Boolean, damageRoll: Number, rawDamageRoll: Number}} Object containing information about the attack
  */
 function combatCharacterAttackMonster(attackingCharacter, targetMonster) {
     const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
@@ -44,14 +44,19 @@ function combatCharacterAttackMonster(attackingCharacter, targetMonster) {
     const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
       attackingCharacter
     );
+  const cappedDamageRoll =
+    targetMonster.healthCurrent - characterDamageRoll < 0
+      ? targetMonster.healthCurrent
+      : characterDamageRoll;
 
     if (hitsEnemy) {
-	targetMonster.healthCurrent -= characterDamageRoll;
+	targetMonster.healthCurrent -= cappedDamageRoll;
     }
 
     return {
 	    hit: hitsEnemy,
-	    damageRoll: characterDamageRoll
+	    damageRoll: cappedDamageRoll,
+	    rawDamageRoll: characterDamageRoll
     }
 }
 
