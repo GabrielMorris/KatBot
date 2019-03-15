@@ -14,9 +14,7 @@ exports.run = (client, message, args) => {
   } = require('../utils/embed-utils');
 
   // TODO: move/remove these
-  const {
-    calculateStats
-  } = require('../utils/character-utils');
+  const { calculateStats } = require('../utils/character-utils');
 
   const { getCharacterLevel } = require('../dragon-sword/characters/levels');
 

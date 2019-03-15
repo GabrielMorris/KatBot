@@ -1,9 +1,7 @@
 exports.run = (client, message, args) => {
   const Character = require('../models/game/character');
 
-  const {
-    calculateStats
-  } = require('../utils/character-utils');
+  const { calculateStats } = require('../utils/character-utils');
   const { getCharacterLevel } = require('../dragon-sword/characters/levels');
   const { restEmbed, cantRestEmbed } = require('../utils/embed-utils');
 
