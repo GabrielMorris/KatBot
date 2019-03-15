@@ -64,7 +64,7 @@ function combatCharacterAttackMonster(attackingCharacter, targetMonster) {
  * Damage a character via a monster attack
  * @param {Monster} attackingMonster Monster model attacking the character
  * @param {Character} targetCharacter Character model being attacked
- * @returns {Number} Number representing amount of damage done to character
+ * @returns {{damageRoll: Number, rawDamageRoll: Number}} Object containing information about the attack
  */
 function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
   // Don't let damage take a character into negative HP
@@ -79,7 +79,10 @@ function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
   // Damage character
   targetCharacter.health -= cappedMonsterDamage;
 
-  return cappedMonsterDamage;
+	return {
+		damageRoll: cappedMonsterDamage,
+		rawDamageRoll: monsterDamageRoll
+	}
 }
 
 exports.run = (client, message, args) => {
@@ -179,7 +182,7 @@ exports.run = (client, message, args) => {
 
               // If roll was less than 0.2 monster will attack
               if (dieRoll < 1) {
-                const monsterDamageDealt = combatMonsterAttackCharacter(
+                const monsterAttack = combatMonsterAttackCharacter(
                   game.monster,
                   character
                 );
@@ -189,7 +192,7 @@ exports.run = (client, message, args) => {
                     author.username,
                     character,
                     game.monster,
-                    monsterDamageDealt
+		    monsterAttack.damageRoll
                   )
                 );
 
