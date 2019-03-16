@@ -1,137 +1,12 @@
 // combat functions
+const combat = require('../dragon-sword/combat/combat');
 const combatStateUtil = require('../dragon-sword/combat/combat-state');
-const combatAttacks = require('../dragon-sword/combat/attacks');
 const combatChecks = require('../dragon-sword/combat/condition-checks.js');
-const rewards = require('../dragon-sword/combat/rewards');
-const levels = require('../dragon-sword/characters/levels');
 
 // other utils
 const discordUtils = require('../utils/discord-utils');
-const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
-
-/**
- * Executes a reward phase of combat based on a combat state object and sends Discord message feedback
- * @param {Object} combatState Object containing information about the round of combat to execute
- * @returns {Object} Modified combat state
- */
-function executeRewardStep(combatState) {
-	const rewardInfo = {
-		gold: null,
-		experience: null
-	};
-
-	const rewardCharacter = combatState.character;
-	const rewardMonster = combatState.monster;
-
-	// only grant rewards if monster is dead
-	if (combatChecks.checkMonsterDead(combatState.monster)) {
-		// Get the character's current level
-		const oldLevel = levels.getCharacterLevel(rewardCharacter);
-
-		// Grant rewards post-combat
-		const combatRewardsEarned = rewards.rewardCharacterCombat(rewardCharacter, rewardMonster);
-		rewardInfo.gold = combatRewardsEarned.gold;
-		rewardInfo.experience = combatRewardsEarned.experience;
-
-		// Get the level again
-		const newLevel = levels.getCharacterLevel(rewardCharacter);
-
-		// If the levels are different, then they've leveled up
-		if (oldLevel.level !== newLevel.level) {
-			// Get the old/new stats object and level up the character
-			const stats = characterUtils.handleLevelUp(
-				rewardCharacter,
-				oldLevel,
-				newLevel
-			);
-			combatState.levelUp = {
-				oldLevel,
-				newLevel,
-				statDiff: stats
-			};
-		}
-	}
-
-	combatState.rewards = rewardInfo;
-	return combatState;
-}
-
-/**
- * Executes character attack phase of combat
- * @param {Object} combatState Object containing information about the round of combat to execute
- * @returns {Object} Object containing updated combat state
- */
-function executeCharacterAttackPhase(combatState) {
-	const phaseInfo = {
-		attack: null
-	};
-	// Attack monster
-	phaseInfo.attack = combatAttacks.characterAttackMonster(combatState.character, combatState.monster);
-	combatState.phases.characterAttackPhase = phaseInfo;
-	return combatState;
-}
-
-/**
- * Executes monster attack phase of combat
- * @param {Object} combatState Object containing information about the round of combat to execute
- * @returns {Object} Object containing updated combat state
- */
-function executeMonsterAttackPhase(combatState) {
-	const phaseInfo = {
-		attack: null
-	};
-
-	// exit phase immediately if monster is dead
-	if (combatChecks.checkMonsterDead(combatState.monster)) {
-		return combatState;
-	}
-
-	// monster attack check
-	const monsterRetaliates = combatChecks.checkMonsterRetaliates(combatState.monster);
-
-	// monster attack succeeds
-	if (monsterRetaliates) {
-		phaseInfo.attack = combatAttacks.monsterAttackCharacter(
-			combatState.monster,
-			combatState.character
-		);
-	}
-
-	combatState.phases.monsterAttackPhase = phaseInfo;
-	return combatState;
-}
-
-/**
- * Executes a round of combat based on a combat state object
- * @param {Object} combatState Object containing information about the round of combat to execute
- * @returns {Object} Modified combat state
- */
-function executeCombatStep(combatState) {
-	executeCharacterAttackPhase(combatState);
-	executeMonsterAttackPhase(combatState);
-	return combatState;
-}
-
-/**
- * Executes combat state save to datastore
- * @param {Object} combatState Object containing information about the round of combat
- * @returns {Promise.<Object>} Promise resolving to modified combat state
- */
-function executeSaveStep(combatState) {
-	combatState.game.markModified('monster');
-
-	const saveMonsterAlive = !(combatChecks.checkMonsterDead(combatState.monster));
-
-	return stateUtils.setGameState(combatState.game, saveMonsterAlive, combatState.monster)
-	.then(() => {
-		return combatState.character.save();
-	}).then(() => {
-		combatState.saved = true;
-		return combatState;
-	});
-}
 
 /**
  * Creates Discord messages to send after combat
@@ -200,13 +75,6 @@ function createCombatStateEmbeds(combatState) {
 	return messages;
 }
 
-function executeCombat(combatState) {
-	let combatStateUpdated;
-	combatStateUpdated = executeCombatStep(combatState);
-	combatStateUpdated = executeRewardStep(combatState);
-	return executeSaveStep(combatState);
-}
-
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
 
@@ -228,7 +96,7 @@ exports.run = (client, message, args) => {
 	  }
 
 	  // OK to fight, execute round of combat
-	 return executeCombat(combatState)
+	 return combat.executeCombat(combatState)
 
   }).then(combatStateRes => {
 	const combatStateEmbeds = createCombatStateEmbeds(combatStateRes)
