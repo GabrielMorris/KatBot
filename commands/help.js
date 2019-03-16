@@ -16,11 +16,12 @@ exports.run = (client, message, args) => {
       {
         name: '**,character [list|me|new|top]**',
         value:
-          '`list`: show character classes. `me`: show your character sheet for this server. `new`: create new character. `top`: show server character rankings.'
+          '- `list`: show character classes.\n- `me`: show your character sheet for this server.\n- `new`: create new character.\n- `top`: show server character rankings.'
       },
       {
-        name: '**,debug-game**',
-        value: 'Show game debug information (restricted).'
+        name: '**,debug-game [gameinfo|monsterspawn]**',
+        value:
+          "Game debug actions (restricted).\n- `gameinfo` (default if no arguments specified): show information about the current server's game.\n- `monsterspawn`: immediately spawn a random monster in the current channel."
       },
       { name: '**,help**', value: 'Display this message with command help.' },
       { name: '**,pong**', value: 'Display ping.' },

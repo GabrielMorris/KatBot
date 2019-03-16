@@ -1,213 +1,126 @@
-// models
-const Game = require('../models/game/game');
-const Character = require('../models/game/character');
+// combat functions
+const combat = require('../dragon-sword/combat/combat');
+const combatStateUtil = require('../dragon-sword/combat/combat-state');
+const combatChecks = require('../dragon-sword/combat/condition-checks.js');
 
-const damageCalculator = require('../dragon-sword/combat/damage-calculator');
-const accuracyCalculator = require('../dragon-sword/combat/accuracy-calculator');
-const rewards = require('../dragon-sword/combat/rewards');
-const levels = require('../dragon-sword/characters/levels');
-
-// utils
-const stateUtils = require('../utils/state-utils');
+// other utils
+const discordUtils = require('../utils/discord-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
-const rngUtils = require('../utils/rng-utils');
 
 /**
- * Check whether a character must rest in order to fight
- * @param {Character} checkCharacter Character to check status of
- * @returns {Boolean} true if character must rest to fight further, false if character can fight without resting
+ * Creates Discord messages to send after combat
+ * @param {Object} combatState Combat state object
+ * @returns {Array} Array of (unsent) messages
  */
-function checkCombatCharacterMustRest(checkCharacter) {
-  return checkCharacter.health === 0 ? true : false;
-}
+function createCombatStateEmbeds(combatState) {
+  const messages = [];
+  // character attack
+  const embedThumbnail = characterUtils.getCharacterClass(combatState.character)
+    .thumbnail;
+  const embedDamage =
+    combatState.phases.characterAttackPhase &&
+    combatState.phases.characterAttackPhase.attack.hit
+      ? combatState.phases.characterAttackPhase.attack.damageRoll
+      : 0;
 
-/**
- * Check whether a monster is dead
- * @param {Monster} checkMonster Monster to check status of
- * @returns {Boolean} true if monster is dead, false if monster is alive
- */
-function checkMonsterDead(checkMonster) {
-  return checkMonster.health === 0 ? true : false;
-}
-
-/**
- * Damage a character via a monster attack
- * @param {Monster} attackingMonster Monster model attacking the character
- * @param {Character} targetCharacter Character model being attacked
- * @returns {Number} Number representing amount of damage done to character
- */
-function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
-  // Don't let damage take a character into negative HP
-  const monsterDamageRoll = damageCalculator.rollMonsterDamageCharacter(
-    attackingMonster
+  messages.push(
+    embedUtils.combatEmbed(
+      combatState.characterOwner.username,
+      combatState.monster,
+      embedDamage,
+      embedThumbnail
+    )
   );
-  const cappedMonsterDamage =
-    targetCharacter.health - monsterDamageRoll < 0
-      ? targetCharacter.health
-      : monsterDamageRoll;
+  // monster attack
+  const monsterEmbedDamage =
+    combatState.phases.monsterAttackPhase &&
+    combatState.phases.monsterAttackPhase.attack
+      ? combatState.phases.monsterAttackPhase.attack.damageRoll
+      : 0;
 
-  // Damage character
-  targetCharacter.health -= cappedMonsterDamage;
+  if (!combatChecks.checkMonsterDead(combatState.monster)) {
+    messages.push(
+      embedUtils.monsterAttackEmbed(
+        combatState.characterOwner.username,
+        combatState.character,
+        combatState.monster,
+        monsterEmbedDamage
+      )
+    );
+  }
+  // level up
+  if (combatState.levelUp) {
+    messages.push(
+      embedUtils.levelUpEmbed(
+        combatState.levelUp.oldLevel,
+        combatState.levelUp.newLevel,
+        combatState.levelUp.statDiff,
+        combatState.characterOwner.username
+      )
+    );
+  }
+  // monster outro
+  if (combatChecks.checkMonsterDead(combatState.monster)) {
+    messages.push(embedUtils.combatOutroEmbed(combatState.monster));
+  }
+  // rewards
+  if (
+    combatState.rewards &&
+    (combatState.rewards.experience || combatState.rewards.gold)
+  ) {
+    messages.push(
+      embedUtils.combatRewardEmbed(
+        combatState.characterOwner.username,
+        combatState.rewards.experience,
+        combatState.rewards.gold
+      )
+    );
+  }
+  // need to rest
+  if (combatChecks.checkCharacterDead(combatState.character)) {
+    messages.push(
+      embedUtils.mustRestEmbed(combatState.characterOwner.username)
+    );
+  }
 
-  return cappedMonsterDamage;
+  return messages;
 }
 
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
 
-  // If monster is alive
-  Game.findOne({ guildID: guild.id }).then(game => {
-    if (game && game.monsterAlive) {
-      const { monster } = game;
-      const monsterBaseHealth = game.monster.health;
+  return combatStateUtil
+    .getDiscordGuildCombatState(author, guild)
+    .then(combatState => {
+      // if user has no character, they need to register one before playing the game
+      if (!combatState.character) {
+        combatState.rejectMessage = channel.send(embedUtils.noCharacterEmbed());
+        return combatState;
+      }
+      // if there's no monster, there's no fight, so we're done
+      if (!combatState.monster) {
+        combatState.rejectMessage = channel.send('There is no monster!');
+        return combatState;
+      }
+      // if character must rest, they can't fight
+      if (combatChecks.checkCharacterMustRest(combatState.character)) {
+        combatState.rejectMessage = channel.send(
+          embedUtils.mustRestEmbed(author.username)
+        );
+        return combatState;
+      }
 
-      // See if we have a character on this guild
-      Character.findOne({
-        guildID: guild.id,
-        memberID: author.id
-      })
-        .then(character => {
-          // If we have no character send a message explaining how to register and exit step
-          if (!character) {
-            channel.send(embedUtils.noCharacterEmbed());
-
-            return false;
-          }
-          // If character's got no HP send a must rest embed and exit step
-          else if (checkCombatCharacterMustRest(character)) {
-            channel.send(embedUtils.mustRestEmbed(author.username));
-
-            return false;
-          }
-          // execute attack
-          else {
-            const charClass = characterUtils.getCharacterClass(character);
-
-            const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
-              character
-            );
-            const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
-              character
-            );
-
-            // Attack monster message
-            channel.send(
-              embedUtils.combatEmbed(
-                author.username,
-                monster,
-                hitsEnemy ? characterDamageRoll : 0,
-                charClass.thumbnail
-              )
-            );
-
-            // If we hit the enemy and monster health is <= 0
-            if (hitsEnemy && game.monster.health - characterDamageRoll <= 0) {
-              // Get the character's current level
-              const currentLevel = levels.getCharacterLevel(character);
-
-              // Grant rewards post-combat
-              const combatRewardsEarned = rewards.rewardCharacterCombat(
-                character,
-                monster
-              );
-
-              // Get the level again
-              const newLevel = levels.getCharacterLevel(character);
-
-              // If the levels are different they've leveled up
-              if (currentLevel.level !== newLevel.level) {
-                // Get the old/new stats object and level up the character
-                const stats = characterUtils.handleLevelUp(
-                  character,
-                  currentLevel,
-                  newLevel
-                );
-
-                // Create and send the level up embed
-                const lvlUpEmbed = embedUtils.levelUpEmbed(
-                  currentLevel,
-                  newLevel,
-                  stats,
-                  author.username
-                );
-
-                channel.send(lvlUpEmbed);
-              }
-
-              // Save the changes to the MongoDoc
-              character.save();
-
-              // Return true so the then statements will execute
-              return { goldEarned: combatRewardsEarned.gold };
-            } else {
-              // If player did no damage return so we don't make an extra DB query
-              if (!hitsEnemy || characterDamageRoll === 0) return false;
-
-              // TODO: move this logic to a util
-              const dieRoll = rngUtils.rollInt(1);
-              console.log('monster hit die roll: ' + dieRoll);
-
-              // If roll was less than 0.2 monster will attack
-              if (dieRoll < 1) {
-                const monsterDamageDealt = combatMonsterAttackCharacter(
-                  game.monster,
-                  character
-                );
-
-                channel.send(
-                  embedUtils.monsterAttackEmbed(
-                    author.username,
-                    character,
-                    game.monster,
-                    monsterDamageDealt
-                  )
-                );
-
-                if (character.health === 0) {
-                  channel.send(embedUtils.mustRestEmbed(author.username));
-                }
-
-                character.save();
-              }
-
-              game.monster.health -= characterDamageRoll;
-              console.log('monster health now ' + game.monster.health);
-              // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
-              game.markModified('monster');
-              game.save();
-
-              return false;
-            }
-          }
-        })
-        .then(hasCharObj => {
-          if (!hasCharObj) return hasCharObj;
-
-          channel.send(embedUtils.combatOutroEmbed(monster));
-
-          return hasCharObj.goldEarned;
-        })
-        .then(goldEarned => {
-          if (!goldEarned) return goldEarned;
-
-          channel.send(
-            embedUtils.combatRewardEmbed(
-              author.username,
-              monster.xpValue,
-              goldEarned
-            )
-          );
-
-          return true;
-        })
-        .then(hasChar => {
-          if (!hasChar) return;
-
-          stateUtils.setGameState(game, false);
-        });
-    } else {
-      channel.send('There is no monster!');
-    }
-  });
+      // OK to fight, execute round of combat
+      return combat.executeCombat(combatState);
+    })
+    .then(combatStateRes => {
+      const combatStateEmbeds = createCombatStateEmbeds(combatStateRes);
+      return discordUtils.writeAllMessageBuffer(combatStateEmbeds, channel);
+    })
+    .catch(err => {
+      console.error(err);
+      channel.send('There was an error and combat has been halted.');
+      return err;
+    });
 };

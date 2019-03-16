@@ -3,10 +3,11 @@ const EmbedConsts = require('../constants/embeds');
 const levels = require('../constants/levels');
 const { capitalizeFirstLetter } = require('../utils/utils');
 const { gameEmbedThumbs } = require('../constants/game');
-const { calculateStats } = require('./character-utils');
+const characterUtils = require('./character-utils');
 const {
   calculateFlatHitChance
 } = require('../dragon-sword/combat/accuracy-calculator');
+const stats = require('../dragon-sword/characters/stats');
 const { getCharacterLevel } = require('../dragon-sword/characters/levels');
 
 /* === EMBED CLASSES === */
@@ -64,8 +65,8 @@ function startGameEmbed() {
 function characterSheetEmbed(character, charClass, username) {
   const levelObj = getCharacterLevel(character);
   const nextLevelObj = levels.find(level => level.level > levelObj.level);
-  const stats = calculateStats(character, levelObj);
-  const hitChance = calculateFlatHitChance(stats);
+  const characterStats = characterUtils.calculateStats(character, levelObj);
+  const hitChance = calculateFlatHitChance(characterStats);
 
   return new Discord.RichEmbed()
     .setColor(EmbedConsts.color)
@@ -80,11 +81,12 @@ function characterSheetEmbed(character, charClass, username) {
     )
     .addField(
       '**STATS**',
-      `**HP:** ${character.health}/${stats.HP} (${Math.floor(
-        (character.health / stats.HP) * 100
-      )}%)\n**MP:** ${stats.MP}\n**HIT:** ${hitChance * 100}%\n**STR:** ${
-        stats.STR
-      }\n**DEF:** ${stats.DEF}\n**AGI:** ${stats.AGI}\n**LUCK:** ${stats.AGI}`
+      `**HP:** ${character.health}/${characterStats.HP} (${Math.floor(
+        (character.health / characterStats.HP) * 100
+      )}%)\n**MP:** ${characterStats.MP}\n**HIT:** ${hitChance *
+        100}%\n**STR:** ${characterStats.STR}\n**DEF:** ${
+        characterStats.DEF
+      }\n**AGI:** ${characterStats.AGI}\n**LUCK:** ${characterStats.AGI}`
     )
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
@@ -191,7 +193,7 @@ function monsterEmbed(monster, intro) {
     .setColor(EmbedConsts.color)
     .addField(
       '**NEW MONSTER**',
-      `**${monster.name}** appeared with **${monster.health} HP**`
+      `**${monster.name}** appeared with **${monster.healthCurrent} HP**`
     )
     .addBlankField()
     .addField('**NARRATIVE**', intro);
@@ -219,27 +221,27 @@ function bossEmbed(boss, intro) {
  * Creates an embed displaying level up information based on params
  * @param {Object} currentLevel Level object with information representing the old level
  * @param {Object} newLevel Level object with information representing the new level
- * @param {Object} stats
- * @param {Object} stats.old Object representing character stats at old level
- * @param {Object} stats.new Object representing character stats at new level
+ * @param {Object} statsDiff
+ * @param {Object} statsDiff.old Object representing character stats at old level
+ * @param {Object} statsDiff.new Object representing character stats at new level
  * @param {String} username Username to fill level up information with
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with level up information
  */
-function levelUpEmbed(currentLevel, newLevel, stats, username) {
+function levelUpEmbed(currentLevel, newLevel, statsDiff, username) {
   return gameEmbed(
     {
       title: '**LEVEL UP**',
       text: `**${username}'s** level has increased from **${
         currentLevel.level
-      }** to **${newLevel.level}**\n\nHP: **${stats.old.HP} -> ${
-        stats.new.HP
-      }**\nMP: **${stats.old.MP} -> ${stats.new.MP}**\nSTR: **${
-        stats.old.STR
-      } -> ${stats.new.STR}**\nDEF: **${stats.old.DEF} -> ${
-        stats.new.DEF
-      }**\nAGI: **${stats.old.AGI} -> ${stats.new.AGI}**\nLUCK: **${
-        stats.old.LUCK
-      } -> ${stats.new.LUCK}**`
+      }** to **${newLevel.level}**\n\nHP: **${statsDiff.old.HP} -> ${
+        statsDiff.new.HP
+      }**\nMP: **${statsDiff.old.MP} -> ${statsDiff.new.MP}**\nSTR: **${
+        statsDiff.old.STR
+      } -> ${statsDiff.new.STR}**\nDEF: **${statsDiff.old.DEF} -> ${
+        statsDiff.new.DEF
+      }**\nAGI: **${statsDiff.old.AGI} -> ${statsDiff.new.AGI}**\nLUCK: **${
+        statsDiff.old.LUCK
+      } -> ${statsDiff.new.LUCK}**`
     },
     gameEmbedThumbs.levelUp
   );
@@ -254,15 +256,16 @@ function levelUpEmbed(currentLevel, newLevel, stats, username) {
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with character-initiated attack information
  */
 function combatEmbed(username, monster, damage, thumbnail) {
-  const dead = monster.health - damage <= 0 ? true : false;
+  const dead = monster.healthCurrent <= 0 ? true : false;
 
-  const text =
+  let text =
     damage > 0
       ? `**${username}** hit **${monster.name}** for **${damage} DMG**, ${
           dead ? 'killing' : 'wounding'
         } it!`
       : `**${username}** missed **${monster.name}**!`;
 
+  text += `\n**Monster HP**: ${monster.healthCurrent}/${monster.health}`;
   return gameEmbed(
     {
       title: '**COMBAT**',
@@ -281,22 +284,38 @@ function combatEmbed(username, monster, damage, thumbnail) {
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster-initiated attack information
  */
 function monsterAttackEmbed(username, character, monster, damage) {
-  const dead = character.health - damage <= 0 ? true : false;
+  const charClass = characterUtils.getCharacterClass(character);
+  const charStats = stats.getCharacterStats(character);
+  const dead = character.health <= 0 ? true : false;
+  const waits = damage <= 0;
   let pronouns;
 
-  if (character.pronouns === 'male') pronouns = 'him';
-  else if (character.pronouns === 'female') pronouns = 'her';
-  else if (character.pronouns === 'neutral') pronouns = 'them';
+  // determine pronouns token
+  switch (character.pronouns) {
+    case 'male':
+      pronouns = 'him';
+      break;
+    case 'female':
+      pronouns = 'her';
+      break;
+    case 'neutral':
+      pronouns = 'them';
+      break;
+  }
 
-  const text = `**${
-    monster.name
-  }** attacked **${username}** for **${damage} HP**, ${
-    dead ? 'mortally wounding' : 'wounding'
-  } ${pronouns}!`;
+  const title = waits ? '**MONSTER WAITS**' : '**MONSTER ATTACK**';
+
+  let text = waits
+    ? `**${monster.name}** waits quietly...`
+    : `**${monster.name}** attacked **${username}** for **${damage} HP**, ${
+        dead ? 'mortally wounding' : 'wounding'
+      } ${pronouns}!`;
+
+  text += `\n**${username}'s HP**: ${character.health}/${charStats.HP}`;
 
   return gameEmbed(
     {
-      title: '**MONSTER ATTACK**',
+      title,
       text
     },
     monster.thumbnail
