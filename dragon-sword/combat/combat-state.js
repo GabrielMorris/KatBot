@@ -25,11 +25,17 @@ function getDiscordGuildCombatState(characterOwner, targetGuild) {
 	const combatState = {
 		game: null,
 		character: null,
+		characterOwner: characterOwner,
 		monster: null,
-		phases: null,
+		phases: {
+			characterAttackPhase: null,
+			monsterAttackPhase: null
+		},
 		rewards: null,
+		levelUp: null,
 		rejectMessage: null,
-		postCombat: null
+		postCombat: null,
+		messageBuffer: []
 	};
 
 
