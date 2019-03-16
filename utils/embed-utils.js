@@ -283,30 +283,40 @@ function combatEmbed(username, monster, damage, thumbnail) {
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster-initiated attack information
  */
 function monsterAttackEmbed(username, character, monster, damage) {
-    const charClass = characterUtils.getCharacterClass(character);
-    const charStats = stats.getCharacterStats(character);
-  const dead = character.health <= 0 ? true : false;
-  let pronouns;
+	const charClass = characterUtils.getCharacterClass(character);
+	const charStats = stats.getCharacterStats(character);
+	const dead = character.health <= 0 ? true : false;
+	const waits = (damage <= 0);
+	let pronouns;
 
-  if (character.pronouns === 'male') pronouns = 'him';
-  else if (character.pronouns === 'female') pronouns = 'her';
-  else if (character.pronouns === 'neutral') pronouns = 'them';
+	// determine pronouns token
+	switch (character.pronouns) {
+		case 'male':
+			pronouns = 'him';
+			break;
+		case 'female':
+			pronouns = 'her';
+			break;
+		case 'neutral':
+			pronouns = 'them';
+			break;
+	}
 
-  let text = `**${
-    monster.name
-  }** attacked **${username}** for **${damage} HP**, ${
-    dead ? 'mortally wounding' : 'wounding'
-  } ${pronouns}!`;
+	const title = waits ? '**MONSTER WAITS**' : '**MONSTER ATTACK**';
 
-  text += `\n**${username}'s HP**: ${character.health}/${charStats.HP}`;
+	let text = waits ?
+	`**${monster.name}** waits quietly...`
+	: `**${monster.name}** attacked **${username}** for **${damage} HP**, ${dead ? 'mortally wounding' : 'wounding'} ${pronouns}!`;
 
-  return gameEmbed(
-    {
-      title: '**MONSTER ATTACK**',
-      text
-    },
-    monster.thumbnail
-  );
+	text += `\n**${username}'s HP**: ${character.health}/${charStats.HP}`;
+
+	return gameEmbed(
+		{
+			title,
+			text
+		},
+		monster.thumbnail
+	);
 }
 
 /**

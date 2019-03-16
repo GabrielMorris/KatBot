@@ -266,35 +266,26 @@ function executeMonsterAttackPhase(combatState, messageUserTarget, messageChanne
 	// monster attack check
 	const monsterRetaliates = rollMonsterRetaliates(combatState.monster);
 
+	// monster attack succeeds
 	if (monsterRetaliates) {
-		// retaliation
 		phaseInfo.attack = combatMonsterAttackCharacter(
 			combatState.monster,
 			combatState.character
 		);
+	}
 
-		return messageChannelTarget.send(
-			embedUtils.monsterAttackEmbed(
-				messageUserTarget.username,
-				combatState.character,
-				combatState.monster,
-				phaseInfo.attack.damageRoll
-			)
-		).then(attackMessage => {
-			phaseInfo.messages.push(attackMessage);
-			return combatState.character.save();
-		}).then(() => {
-			return phaseInfo;
-		});
-	}
-	else {
-		// monster does nothing
-		return messageChannelTarget.send(`${combatState.monster.name} waits quietly...`)
-		.then(waitMessage => {
-			phaseInfo.messages.push(waitMessage);
-			return phaseInfo;
-		});
-	}
+	// attack/miss message regardless
+	return messageChannelTarget.send(
+		embedUtils.monsterAttackEmbed(
+			messageUserTarget.username,
+			combatState.character,
+			combatState.monster,
+			monsterRetaliates ? phaseInfo.attack.damageRoll : 0,
+		)
+	).then(attackMessage => {
+		phaseInfo.messages.push(attackMessage);
+		return phaseInfo;
+	});
 }
 
 /**
