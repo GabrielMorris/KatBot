@@ -19,6 +19,10 @@ function spawner(channel) {
     .then(monsters => {
       // Select a random monster
       const monster = randomMonster(monsters);
+      // set up monster's current health if none is being tracked already
+      if (!monster.healthCurrent && monster.healthCurrent !== 0) {
+        monster.healthCurrent = monster.health;
+      }
 
       // Find the game for the guild
       Game.findOne({ guildID: channel.guild.id })

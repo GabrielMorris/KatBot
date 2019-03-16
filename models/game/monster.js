@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const monsterSchema = new mongoose.Schema({
   name: { type: String, required: true },
   health: { type: Number, required: true },
+  healthCurrent: { type: Number, required: false },
   xpValue: { type: Number, required: true },
   damage: { type: Number, required: true },
   thumbnail: { type: String, required: true },
