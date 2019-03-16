@@ -106,158 +106,332 @@ function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
 	}
 }
 
+/**
+ * Fetches the Game model associated with a Discord guild (server), if one exists
+ * @param {Discord.<Guild>} targetGuild Discord Guild object to find game from
+ * @returns {Game|null} Game model associated with Discord guild or null if none exists
+ */
+function getGuildGame(targetGuild) {
+  return Game.findOne({ guildID: targetGuild.id }).then(game => {
+	  return (game ? game : null);
+  });
+}
+
+/**
+ * Fetches information about a Discord server's combat state for a particular Discord user
+ * @param {Discord.<User>} characterOwner Discord User object that owns the character
+ * @param {Discord.<Guild>} targetGuild Discord Guild object to check
+ * @returns {Object} Information about the target game's combat state
+ */
+function getGameCombatState(characterOwner, targetGuild) {
+	const combatState = {
+		game: null,
+		character: null,
+		monster: null,
+		phases: null,
+		rewards: null,
+		rejectMessage: null,
+		postCombat: null
+	};
+
+
+	// find game if one exists on server
+	return getGuildGame(targetGuild).then(guildGame => {
+		if (!guildGame) {
+			// server should have a game instance
+			throw new Error(`Attempted to get combat state for server ${targetGuild.id} but it does not have a game instance`);
+		}
+		else {
+			// assign game if one's found
+			combatState.game = guildGame;
+			// assign monster if one is alive
+			if (guildGame.monster && !checkMonsterDead(guildGame.monster)) {
+				combatState.monster = guildGame.monster;
+			}
+		}
+		// find character associated with this game
+		return Character.findOne({
+			guildID: targetGuild.id,
+			memberID: characterOwner.id
+		});
+	}).then(combatCharacter => {
+		// assign character if one is found for user on server
+		if (combatCharacter) {
+			combatState.character = combatCharacter;
+		}
+		return combatState;
+	});
+}
+
+/**
+ * Executes a reward phase of combat based on a combat state object and sends Discord message feedback
+ * @param {Object} combatState Object containing information about the round of combat to execute
+ * @param {Discord.<User>} messageUserTarget User to target Discord message feedback toward
+ * @param {Discord.<GuildChannel>} messageChannelTarget Channel to target Discord message feedback toward
+ * @returns {Object} Modified combat state
+ */
+function executeRewardStep(combatState, messageUserTarget, messageChannelTarget) {
+	const rewardInfo = {
+		gold: null,
+		experience: null
+	};
+
+	const rewardCharacter = combatState.character;
+	const rewardMonster = combatState.monster;
+
+	// only grant rewards if monster is dead
+	if (checkMonsterDead(combatState.monster)) {
+		// Get the character's current level
+		const oldLevel = levels.getCharacterLevel(rewardCharacter);
+
+		// Grant rewards post-combat
+		const combatRewardsEarned = rewards.rewardCharacterCombat(rewardCharacter, rewardMonster);
+		rewardInfo.gold = combatRewardsEarned.gold;
+		rewardInfo.experience = combatRewardsEarned.experience;
+
+		// Get the level again
+		const newLevel = levels.getCharacterLevel(rewardCharacter);
+
+		// If the levels are different, then they've leveled up
+			if (oldLevel.level !== newLevel.level) {
+			// Get the old/new stats object and level up the character
+			const stats = characterUtils.handleLevelUp(
+				rewardCharacter,
+				oldLevel,
+				newLevel
+			);
+
+			// Create and send the level up embed
+			const lvlUpEmbed = embedUtils.levelUpEmbed(
+				oldLevel,
+				newLevel,
+				stats,
+				messageUserTarget.username
+			);
+
+			messageChannelTarget.send(lvlUpEmbed);
+		}
+	}
+
+	combatState.rewards = rewardInfo;
+	return combatState;
+}
+
+/**
+ * Executes character attack phase of combat
+ * @param {Object} combatState Object containing information about the round of combat to execute
+ * @param {Discord.<User>} messageUserTarget User to target Discord message feedback toward
+ * @param {Discord.<GuildChannel>} messageChannelTarget Channel to target Discord message feedback toward
+ * @returns {Promise.<{messages: Array.<Discord.<Message>>, attack: Object}>} Promise resolving to object with phase info
+ */
+function executeCharacterAttackPhase(combatState, messageUserTarget, messageChannelTarget) {
+	const phaseInfo = {
+		messages: [],
+		attack: null
+	};
+	// Attack monster
+	phaseInfo.attack = combatCharacterAttackMonster(combatState.character, combatState.monster);
+
+	// Attack monster message
+	const embedThumbnail = characterUtils.getCharacterClass(combatState.character).thumbnail;
+	return messageChannelTarget.send(embedUtils.combatEmbed(
+		messageUserTarget.username,
+		combatState.monster,
+		phaseInfo.attack.hit ? phaseInfo.attack.damageRoll : 0,
+		embedThumbnail
+	)).then(attackMessage => {
+		phaseInfo.messages.push(attackMessage);
+		return phaseInfo;
+	});;
+}
+
+/**
+ * Executes monster attack phase of combat
+ * @param {Object} combatState Object containing information about the round of combat to execute
+ * @param {Discord.<User>} messageUserTarget User to target Discord message feedback toward
+ * @param {Discord.<GuildChannel>} messageChannelTarget Channel to target Discord message feedback toward
+ * @returns {Promise.<{messages: Array.<Discord.<Message>>, attack: Object}>} Promise resolving to object with phase info
+ */
+function executeMonsterAttackPhase(combatState, messageUserTarget, messageChannelTarget) {
+	const phaseInfo = {
+		messages: [],
+		attack: null
+	};
+
+	// exit phase immediately if monster is dead
+	if (checkMonsterDead(combatState.monster)) {
+		return Promise.resolve(phaseInfo);
+	}
+
+	// monster attack check
+	const monsterRetaliates = rollMonsterRetaliates(combatState.monster);
+
+	if (monsterRetaliates) {
+		// retaliation
+		phaseInfo.attack = combatMonsterAttackCharacter(
+			combatState.monster,
+			combatState.character
+		);
+
+		return messageChannelTarget.send(
+			embedUtils.monsterAttackEmbed(
+				messageUserTarget.username,
+				combatState.character,
+				combatState.monster,
+				phaseInfo.attack.damageRoll
+			)
+		).then(attackMessage => {
+			phaseInfo.messages.push(attackMessage);
+			return combatState.character.save();
+		}).then(() => {
+			return phaseInfo;
+		});
+	}
+	else {
+		// monster does nothing
+		return messageChannelTarget.send(`${combatState.monster.name} waits quietly...`)
+		.then(waitMessage => {
+			phaseInfo.messages.push(waitMessage);
+			return phaseInfo;
+		});
+	}
+}
+
+/**
+ * Executes a round of combat based on a combat state object and sends Discord message feedback to specified user/channel
+ * @param {Object} combatState Object containing information about the round of combat to execute
+ * @param {Discord.<User>} messageUserTarget User to target Discord message feedback toward
+ * @param {Discord.<GuildChannel>} messageChannelTarget Channel to target Discord message feedback toward
+ * @returns {Object} Modified combat state
+ */
+function executeCombatStep(combatState, messageUserTarget, messageChannelTarget) {
+	const combatPhases = {
+		characterAttackPhase: null,
+		monsterAttackPhase: null
+	};
+
+	// execute character attack phase
+	return executeCharacterAttackPhase(combatState, messageUserTarget, messageChannelTarget)
+	.then(characterAttackPhase => {
+	// execute monster attack phase
+		combatPhases.characterAttackPhase = characterAttackPhase;
+		return executeMonsterAttackPhase(combatState, messageUserTarget, messageChannelTarget);
+	}).then(monsterAttackPhase => {
+		combatPhases.monsterAttackPhase = monsterAttackPhase;
+		combatState.phases = combatPhases;
+		return combatState;
+	});
+}
+
+/**
+ * Executes post-combat actions
+ * @param {Object} combatState Object containing information about the round of combat
+ * @param {Discord.<User>} messageUserTarget User to target Discord message feedback toward
+ * @param {Discord.<GuildChannel>} messageChannelTarget Channel to target Discord message feedback toward
+ * @returns {Object} Modified combat state
+ */
+function executePostCombatStep(combatState, messageUserTarget, messageChannelTarget) {
+	const postCombatInfo = {
+		monsterOutro: null,
+		rewards: null,
+		rest: null
+	};
+
+	// beginning of conditional promise chain
+	let promiseChain = Promise.resolve();
+
+	if (checkMonsterDead(combatState.monster)) {
+		promiseChain = messageChannelTarget.send(embedUtils.combatOutroEmbed(combatState.monster))
+		.then(outroMessage => {
+			postCombatInfo.monsterOutro = outroMessage;
+		});
+	}
+	if (combatState.rewards && (combatState.rewards.experience || combatState.rewards.gold)) {
+		promiseChain = messageChannelTarget.send(
+			embedUtils.combatRewardEmbed(
+				messageUserTarget.username,
+				combatState.rewards.experience,
+				combatState.rewards.gold
+			)
+		).then(rewardMessage => {
+			postCombatInfo.rewards = rewardMessage;
+		});
+	}
+	if (checkCharacterDead(combatState.character)) {
+		promiseChain = messageChannelTarget.send(embedUtils.mustRestEmbed(messageUserTarget.username))
+		.then(restMessage => {
+			postCombatInfo.restMessage = restMessage;
+		});
+	}
+
+	// execute conditional promise chain
+	return promiseChain.then(() => {
+		combatState.postCombat = postCombatInfo;
+		return combatState;
+	});
+}
+
+/**
+ * Executes combat state save to datastore
+ * @param {Object} combatState Object containing information about the round of combat
+ * @param {Discord.<User>} messageUserTarget User to target Discord message feedback toward
+ * @param {Discord.<GuildChannel>} messageChannelTarget Channel to target Discord message feedback toward
+ * @returns {Object} Modified combat state
+ */
+function executeSaveStep(combatState, messageUserTarget, messageChannelTarget) {
+	combatState.game.markModified('monster');
+
+	const saveMonsterAlive = !(checkMonsterDead(combatState.monster));
+
+	return stateUtils.setGameState(combatState.game, saveMonsterAlive, combatState.monster)
+	.then(() => {
+		return combatState.character.save();
+	}).then(() => {
+		combatState.saved = true;
+		return combatState;
+	});
+}
+
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
 
-  // If monster is alive
-  Game.findOne({ guildID: guild.id }).then(game => {
-    if (game && game.monsterAlive) {
-      const { monster } = game;
-      const monsterBaseHealth = game.monster.health;
-      const monsterCurrentHealth = game.monster.healthCurrent;
-
-      // See if we have a character on this guild
-      Character.findOne({
-        guildID: guild.id,
-        memberID: author.id
-      })
-        .then(character => {
-          // If we have no character send a message explaining how to register and exit step
-          if (!character) {
-            channel.send(embedUtils.noCharacterEmbed());
-
-            return false;
-          }
-          // If character's got no HP send a must rest embed and exit step
-          else if (checkCombatCharacterMustRest(character)) {
-            channel.send(embedUtils.mustRestEmbed(author.username));
-
-            return false;
-          }
-          // execute attack
-          else {
-            const charClass = characterUtils.getCharacterClass(character);
-
-	    const characterAttack = combatCharacterAttackMonster(character, game.monster);
-
-            // Attack monster message
-            channel.send(
-              embedUtils.combatEmbed(
-                author.username,
-                monster,
-                characterAttack.hit ? characterAttack.damageRoll : 0,
-                charClass.thumbnail
-              )
-            );
-
-            // If we hit the enemy and monster health is <= 0
-            if (
-              characterAttack.hit &&
-              checkMonsterDead(game.monster)
-            ) {
-              // Get the character's current level
-              const currentLevel = levels.getCharacterLevel(character);
-
-              // Grant rewards post-combat
-              const combatRewardsEarned = rewards.rewardCharacterCombat(
-                character,
-                monster
-              );
-
-              // Get the level again
-              const newLevel = levels.getCharacterLevel(character);
-
-              // If the levels are different they've leveled up
-              if (currentLevel.level !== newLevel.level) {
-                // Get the old/new stats object and level up the character
-                const stats = characterUtils.handleLevelUp(
-                  character,
-                  currentLevel,
-                  newLevel
-                );
-
-                // Create and send the level up embed
-                const lvlUpEmbed = embedUtils.levelUpEmbed(
-                  currentLevel,
-                  newLevel,
-                  stats,
-                  author.username
-                );
-
-                channel.send(lvlUpEmbed);
-              }
-
-              // Save the changes to the MongoDoc
-              character.save();
-
-              // Return true so the then statements will execute
-              return { goldEarned: combatRewardsEarned.gold };
-            } else {
-              // If player did no damage return so we don't make an extra DB query
-		if (!characterAttack.hit || characterAttack.damageRoll === 0) {
-		      return false;
-		}
-
-	      // monster attack check
-              const monsterRetaliates = rollMonsterRetaliates(game.monster);
-
-              if (monsterRetaliates) {
-                const monsterAttack = combatMonsterAttackCharacter(
-                  game.monster,
-                  character
-                );
-
-                channel.send(
-                  embedUtils.monsterAttackEmbed(
-                    author.username,
-                    character,
-                    game.monster,
-		    monsterAttack.damageRoll
-                  )
-                );
-
-                if (checkCharacterDead(character)) {
-                  channel.send(embedUtils.mustRestEmbed(author.username));
-                }
-
-                character.save();
-              }
-
-              // Manually set the monster object as modified, as mongoose doesn't detect nested obect updatesL
-              game.markModified('monster');
-              game.save();
-
-              return false;
-            }
-          }
-        })
-        .then(hasCharObj => {
-          if (!hasCharObj) return hasCharObj;
-
-          channel.send(embedUtils.combatOutroEmbed(monster));
-
-          return hasCharObj.goldEarned;
-        })
-        .then(goldEarned => {
-          if (!goldEarned) return goldEarned;
-
-          channel.send(
-            embedUtils.combatRewardEmbed(
-              author.username,
-              monster.xpValue,
-              goldEarned
-            )
-          );
-
-          return true;
-        })
-        .then(hasChar => {
-          if (!hasChar) return;
-
-          stateUtils.setGameState(game, false);
-        });
-    } else {
-      channel.send('There is no monster!');
-    }
+  return getGameCombatState(author, guild).then(combatState => {
+	  // if user has no character, they need to register one before playing the game
+	  if (!combatState.character) {
+		combatState.rejectMessage = channel.send(embedUtils.noCharacterEmbed());
+		return Promise.resolve(combatState);
+	  }
+	  // if there's no monster, there's no fight, so we're done
+	  if (!combatState.monster) {
+		combatState.rejectMessage = channel.send('There is no monster!');
+		return Promise.resolve(combatState);
+	  }
+	  // if character must rest, they can't fight
+	  if (checkCombatCharacterMustRest(combatState.character)) {
+		combatState.rejectMessage = channel.send(embedUtils.mustRestEmbed(author.username));
+		return Promise.resolve(combatState);
+	  }
+	  // OK to fight, execute round of combat
+	 return executeCombatStep(combatState, author, channel)
+	.then(combatStateRes => {
+	// calculate and assign rewards
+		return executeRewardStep(combatStateRes, author, channel);
+	}).then(combatStateRes => {
+	// post-combat messages
+		return executePostCombatStep(combatStateRes, author, channel);
+	});
+  }).then(combatState => {
+	 // skip state save if combat didn't happen
+	if (combatState.rejectMessage) {
+		return Promise.resolve(false);
+	}
+	  // save state if all is well...
+	return executeSaveStep(combatState, author, channel);
+  }).then(combatStateRes => {
+	  return combatStateRes;
+  }).catch(err => {
+	  console.error(err);
+	  channel.send('There was an error and combat has been halted.');
+	  return err;
   });
 };
