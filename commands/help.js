@@ -20,7 +20,8 @@ exports.run = (client, message, args) => {
       },
       {
         name: '**,debug-game [gameinfo|monsterspawn]**',
-        value: 'Game debug actions (restricted).\n- `gameinfo` (default if no arguments specified): show information about the current server\'s game.\n- `monsterspawn`: immediately spawn a random monster in the current channel.'
+        value:
+          "Game debug actions (restricted).\n- `gameinfo` (default if no arguments specified): show information about the current server's game.\n- `monsterspawn`: immediately spawn a random monster in the current channel."
       },
       { name: '**,help**', value: 'Display this message with command help.' },
       { name: '**,pong**', value: 'Display ping.' },

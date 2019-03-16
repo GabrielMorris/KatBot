@@ -83,9 +83,10 @@ function characterSheetEmbed(character, charClass, username) {
       '**STATS**',
       `**HP:** ${character.health}/${characterStats.HP} (${Math.floor(
         (character.health / characterStats.HP) * 100
-      )}%)\n**MP:** ${characterStats.MP}\n**HIT:** ${hitChance * 100}%\n**STR:** ${
-        characterStats.STR
-      }\n**DEF:** ${characterStats.DEF}\n**AGI:** ${characterStats.AGI}\n**LUCK:** ${characterStats.AGI}`
+      )}%)\n**MP:** ${characterStats.MP}\n**HIT:** ${hitChance *
+        100}%\n**STR:** ${characterStats.STR}\n**DEF:** ${
+        characterStats.DEF
+      }\n**AGI:** ${characterStats.AGI}\n**LUCK:** ${characterStats.AGI}`
     )
     .addField('**INVENTORY**', `**GOLD:** ${character.gold}g`);
 }
@@ -264,7 +265,7 @@ function combatEmbed(username, monster, damage, thumbnail) {
         } it!`
       : `**${username}** missed **${monster.name}**!`;
 
-      text += `\n**Monster HP**: ${monster.healthCurrent}/${monster.health}`
+  text += `\n**Monster HP**: ${monster.healthCurrent}/${monster.health}`;
   return gameEmbed(
     {
       title: '**COMBAT**',
@@ -283,40 +284,42 @@ function combatEmbed(username, monster, damage, thumbnail) {
  * @returns {Discord.RichEmbed} Discord RichEmbed filled with monster-initiated attack information
  */
 function monsterAttackEmbed(username, character, monster, damage) {
-	const charClass = characterUtils.getCharacterClass(character);
-	const charStats = stats.getCharacterStats(character);
-	const dead = character.health <= 0 ? true : false;
-	const waits = (damage <= 0);
-	let pronouns;
+  const charClass = characterUtils.getCharacterClass(character);
+  const charStats = stats.getCharacterStats(character);
+  const dead = character.health <= 0 ? true : false;
+  const waits = damage <= 0;
+  let pronouns;
 
-	// determine pronouns token
-	switch (character.pronouns) {
-		case 'male':
-			pronouns = 'him';
-			break;
-		case 'female':
-			pronouns = 'her';
-			break;
-		case 'neutral':
-			pronouns = 'them';
-			break;
-	}
+  // determine pronouns token
+  switch (character.pronouns) {
+    case 'male':
+      pronouns = 'him';
+      break;
+    case 'female':
+      pronouns = 'her';
+      break;
+    case 'neutral':
+      pronouns = 'them';
+      break;
+  }
 
-	const title = waits ? '**MONSTER WAITS**' : '**MONSTER ATTACK**';
+  const title = waits ? '**MONSTER WAITS**' : '**MONSTER ATTACK**';
 
-	let text = waits ?
-	`**${monster.name}** waits quietly...`
-	: `**${monster.name}** attacked **${username}** for **${damage} HP**, ${dead ? 'mortally wounding' : 'wounding'} ${pronouns}!`;
+  let text = waits
+    ? `**${monster.name}** waits quietly...`
+    : `**${monster.name}** attacked **${username}** for **${damage} HP**, ${
+        dead ? 'mortally wounding' : 'wounding'
+      } ${pronouns}!`;
 
-	text += `\n**${username}'s HP**: ${character.health}/${charStats.HP}`;
+  text += `\n**${username}'s HP**: ${character.health}/${charStats.HP}`;
 
-	return gameEmbed(
-		{
-			title,
-			text
-		},
-		monster.thumbnail
-	);
+  return gameEmbed(
+    {
+      title,
+      text
+    },
+    monster.thumbnail
+  );
 }
 
 /**

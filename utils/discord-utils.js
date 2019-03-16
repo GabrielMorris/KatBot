@@ -5,23 +5,24 @@
  * @returns {Array} messageResults Array of results from each message send
  */
 function writeAllMessageBuffer(messageBuffer, channel) {
-	const messageResults = [];
-	return messageBuffer.reduce((previousPromise, nextMessage) => {
-		return previousPromise.then(messageRes => {
-			if (messageRes) {
-				messageResults.push(messageRes);
-			}
-			return channel.send(nextMessage);
-		});
-	}, Promise.resolve())
-	.then(finalMessage => {
-		if (finalMessage) {
-			messageResults.push(finalMessage);
-		}
-		return messageResults;
-	});
+  const messageResults = [];
+  return messageBuffer
+    .reduce((previousPromise, nextMessage) => {
+      return previousPromise.then(messageRes => {
+        if (messageRes) {
+          messageResults.push(messageRes);
+        }
+        return channel.send(nextMessage);
+      });
+    }, Promise.resolve())
+    .then(finalMessage => {
+      if (finalMessage) {
+        messageResults.push(finalMessage);
+      }
+      return messageResults;
+    });
 }
 
 module.exports = {
-	writeAllMessageBuffer
+  writeAllMessageBuffer
 };
