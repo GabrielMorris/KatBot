@@ -1,167 +1,14 @@
-// models
-const Game = require('../models/game/game');
-const Character = require('../models/game/character');
-
-const damageCalculator = require('../dragon-sword/combat/damage-calculator');
-const accuracyCalculator = require('../dragon-sword/combat/accuracy-calculator');
+// combat functions
+const combatStateUtil = require('../dragon-sword/combat/combat-state');
+const combatAttacks = require('../dragon-sword/combat/attacks');
+const combatChecks = require('../dragon-sword/combat/condition-checks.js');
 const rewards = require('../dragon-sword/combat/rewards');
 const levels = require('../dragon-sword/characters/levels');
 
-// utils
+// other utils
 const stateUtils = require('../utils/state-utils');
 const characterUtils = require('../utils/character-utils');
 const embedUtils = require('../utils/embed-utils');
-const rngUtils = require('../utils/rng-utils');
-
-/**
- * Check whether a character must rest in order to fight
- * @param {Character} checkCharacter Character to check status of
- * @returns {Boolean} true if character must rest to fight further, false if character can fight without resting
- */
-function checkCombatCharacterMustRest(checkCharacter) {
-  return checkCharacter.health === 0 ? true : false;
-}
-
-/**
- * Rolls whether a monster retaliates to a character attack (currently 50% chance)
- * @param {Monster} checkMonster Monster to check retaliation from
- * @returns {Boolean} true if monster would attack, false if monster would not attack
- */
-function rollMonsterRetaliates(checkMonster) {
-	// 50-50 chance
-	const dieRoll = rngUtils.rollInt(1);
-
-	return (dieRoll < 1 ? true : false);
-}
-
-/**
- * Check whether a monster is dead
- * @param {Monster} checkMonster Monster to check status of
- * @returns {Boolean} true if monster is dead, false if monster is alive
- */
-function checkMonsterDead(checkMonster) {
-  return checkMonster.healthCurrent <= 0 ? true : false;
-}
-
-/**
- * Check whether a character is dead
- * @param {Character} checkCharacter Character to check status of
- * @returns {Boolean} true if character is dead, false if character is alive
- */
-function checkCharacterDead(checkCharacter) {
-  return checkCharacter.health <= 0 ? true : false;
-}
-
-/**
- * Damage a monster via a character attack
- * @param {Character} attackingCharacter Character model attacking the monster
- * @param {Monster} targetMonster Monster model being attacked
- * @returns {{hit: Boolean, damageRoll: Number, rawDamageRoll: Number}} Object containing information about the attack
- */
-function combatCharacterAttackMonster(attackingCharacter, targetMonster) {
-    const hitsEnemy = accuracyCalculator.rollCharacterHitMonster(
-      attackingCharacter
-    );
-    const characterDamageRoll = damageCalculator.rollCharacterDamageMonster(
-      attackingCharacter
-    );
-  const cappedDamageRoll =
-    targetMonster.healthCurrent - characterDamageRoll < 0
-      ? targetMonster.healthCurrent
-      : characterDamageRoll;
-
-    if (hitsEnemy) {
-	targetMonster.healthCurrent -= cappedDamageRoll;
-    }
-
-    return {
-	    hit: hitsEnemy,
-	    damageRoll: cappedDamageRoll,
-	    rawDamageRoll: characterDamageRoll
-    }
-}
-
-/**
- * Damage a character via a monster attack
- * @param {Monster} attackingMonster Monster model attacking the character
- * @param {Character} targetCharacter Character model being attacked
- * @returns {{damageRoll: Number, rawDamageRoll: Number}} Object containing information about the attack
- */
-function combatMonsterAttackCharacter(attackingMonster, targetCharacter) {
-  // Don't let damage take a character into negative HP
-  const monsterDamageRoll = damageCalculator.rollMonsterDamageCharacter(
-    attackingMonster
-  );
-  const cappedMonsterDamage =
-    targetCharacter.health - monsterDamageRoll < 0
-      ? targetCharacter.health
-      : monsterDamageRoll;
-
-  // Damage character
-  targetCharacter.health -= cappedMonsterDamage;
-
-	return {
-		damageRoll: cappedMonsterDamage,
-		rawDamageRoll: monsterDamageRoll
-	}
-}
-
-/**
- * Fetches the Game model associated with a Discord guild (server), if one exists
- * @param {Discord.<Guild>} targetGuild Discord Guild object to find game from
- * @returns {Game|null} Game model associated with Discord guild or null if none exists
- */
-function getGuildGame(targetGuild) {
-  return Game.findOne({ guildID: targetGuild.id }).then(game => {
-	  return (game ? game : null);
-  });
-}
-
-/**
- * Fetches information about a Discord server's combat state for a particular Discord user
- * @param {Discord.<User>} characterOwner Discord User object that owns the character
- * @param {Discord.<Guild>} targetGuild Discord Guild object to check
- * @returns {Object} Information about the target game's combat state
- */
-function getGameCombatState(characterOwner, targetGuild) {
-	const combatState = {
-		game: null,
-		character: null,
-		monster: null,
-		phases: null,
-		rewards: null,
-		rejectMessage: null,
-		postCombat: null
-	};
-
-
-	// find game if one exists on server
-	return getGuildGame(targetGuild).then(guildGame => {
-		if (!guildGame) {
-			// server should have a game instance
-			throw new Error(`Attempted to get combat state for server ${targetGuild.id} but it does not have a game instance`);
-		}
-		else {
-			// assign game if one's found
-			combatState.game = guildGame;
-			// assign monster if one is alive
-			if (guildGame.monster && !checkMonsterDead(guildGame.monster)) {
-				combatState.monster = guildGame.monster;
-			}
-		}
-		// find character associated with this game
-		return Character.findOne({
-			guildID: targetGuild.id,
-			memberID: characterOwner.id
-		});
-	}).then(combatCharacter => {
-		// assign character if one is found for user on server
-		if (combatCharacter) {
-			combatState.character = combatCharacter;
-		}
-		return combatState;
-	});
-}
 
 /**
  * Executes a reward phase of combat based on a combat state object and sends Discord message feedback
@@ -180,7 +27,7 @@ function executeRewardStep(combatState, messageUserTarget, messageChannelTarget)
 	const rewardMonster = combatState.monster;
 
 	// only grant rewards if monster is dead
-	if (checkMonsterDead(combatState.monster)) {
+	if (combatChecks.checkMonsterDead(combatState.monster)) {
 		// Get the character's current level
 		const oldLevel = levels.getCharacterLevel(rewardCharacter);
 
@@ -230,7 +77,7 @@ function executeCharacterAttackPhase(combatState, messageUserTarget, messageChan
 		attack: null
 	};
 	// Attack monster
-	phaseInfo.attack = combatCharacterAttackMonster(combatState.character, combatState.monster);
+	phaseInfo.attack = combatAttacks.characterAttackMonster(combatState.character, combatState.monster);
 
 	// Attack monster message
 	const embedThumbnail = characterUtils.getCharacterClass(combatState.character).thumbnail;
@@ -259,16 +106,16 @@ function executeMonsterAttackPhase(combatState, messageUserTarget, messageChanne
 	};
 
 	// exit phase immediately if monster is dead
-	if (checkMonsterDead(combatState.monster)) {
+	if (combatChecks.checkMonsterDead(combatState.monster)) {
 		return Promise.resolve(phaseInfo);
 	}
 
 	// monster attack check
-	const monsterRetaliates = rollMonsterRetaliates(combatState.monster);
+	const monsterRetaliates = combatChecks.checkMonsterRetaliates(combatState.monster);
 
 	// monster attack succeeds
 	if (monsterRetaliates) {
-		phaseInfo.attack = combatMonsterAttackCharacter(
+		phaseInfo.attack = combatAttacks.monsterAttackCharacter(
 			combatState.monster,
 			combatState.character
 		);
@@ -331,7 +178,7 @@ function executePostCombatStep(combatState, messageUserTarget, messageChannelTar
 	// beginning of conditional promise chain
 	let promiseChain = Promise.resolve();
 
-	if (checkMonsterDead(combatState.monster)) {
+	if (combatChecks.checkMonsterDead(combatState.monster)) {
 		promiseChain = messageChannelTarget.send(embedUtils.combatOutroEmbed(combatState.monster))
 		.then(outroMessage => {
 			postCombatInfo.monsterOutro = outroMessage;
@@ -348,7 +195,7 @@ function executePostCombatStep(combatState, messageUserTarget, messageChannelTar
 			postCombatInfo.rewards = rewardMessage;
 		});
 	}
-	if (checkCharacterDead(combatState.character)) {
+	if (combatChecks.checkCharacterDead(combatState.character)) {
 		promiseChain = messageChannelTarget.send(embedUtils.mustRestEmbed(messageUserTarget.username))
 		.then(restMessage => {
 			postCombatInfo.restMessage = restMessage;
@@ -372,7 +219,7 @@ function executePostCombatStep(combatState, messageUserTarget, messageChannelTar
 function executeSaveStep(combatState, messageUserTarget, messageChannelTarget) {
 	combatState.game.markModified('monster');
 
-	const saveMonsterAlive = !(checkMonsterDead(combatState.monster));
+	const saveMonsterAlive = !(combatChecks.checkMonsterDead(combatState.monster));
 
 	return stateUtils.setGameState(combatState.game, saveMonsterAlive, combatState.monster)
 	.then(() => {
@@ -386,7 +233,7 @@ function executeSaveStep(combatState, messageUserTarget, messageChannelTarget) {
 exports.run = (client, message, args) => {
   const { channel, guild, author } = message;
 
-  return getGameCombatState(author, guild).then(combatState => {
+  return combatStateUtil.getDiscordGuildCombatState(author, guild).then(combatState => {
 	  // if user has no character, they need to register one before playing the game
 	  if (!combatState.character) {
 		combatState.rejectMessage = channel.send(embedUtils.noCharacterEmbed());
@@ -398,7 +245,7 @@ exports.run = (client, message, args) => {
 		return Promise.resolve(combatState);
 	  }
 	  // if character must rest, they can't fight
-	  if (checkCombatCharacterMustRest(combatState.character)) {
+	  if (combatChecks.checkCharacterMustRest(combatState.character)) {
 		combatState.rejectMessage = channel.send(embedUtils.mustRestEmbed(author.username));
 		return Promise.resolve(combatState);
 	  }
@@ -410,14 +257,13 @@ exports.run = (client, message, args) => {
 	}).then(combatStateRes => {
 	// post-combat messages
 		return executePostCombatStep(combatStateRes, author, channel);
+	}).then(combatStateRes => {
+		if (combatStateRes.rejectMessage) {
+			return Promise.resolve(false);
+		}
+		  // save state if all is well...
+		return executeSaveStep(combatStateRes, author, channel);
 	});
-  }).then(combatState => {
-	 // skip state save if combat didn't happen
-	if (combatState.rejectMessage) {
-		return Promise.resolve(false);
-	}
-	  // save state if all is well...
-	return executeSaveStep(combatState, author, channel);
   }).then(combatStateRes => {
 	  return combatStateRes;
   }).catch(err => {
