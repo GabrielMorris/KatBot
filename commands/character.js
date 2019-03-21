@@ -156,7 +156,8 @@ exports.run = (client, message, args) => {
     Character.find({ guildID: message.guild.id })
       .sort({ experience: -1 })
       .then(characters => {
-        const rankingEmbed = guildRankingEmbed(characters);
+        const topTenChars = characters.slice(0, 10);
+        const rankingEmbed = guildRankingEmbed(topTenChars);
 
         channel.send(rankingEmbed);
       });
