@@ -15,6 +15,12 @@ const embedUtils = require('../utils/embed-utils');
  */
 function createCombatStateEmbeds(combatState) {
   const messages = [];
+
+  // If combat has been rejected we will return the empty messages array
+  if (combatState.rejectMessage) {
+    return messages;
+  }
+
   // character attack
   const embedThumbnail = characterUtils.getCharacterClass(combatState.character)
     .thumbnail;
@@ -32,6 +38,7 @@ function createCombatStateEmbeds(combatState) {
       embedThumbnail
     )
   );
+
   // monster attack
   const monsterEmbedDamage =
     combatState.phases.monsterAttackPhase &&
@@ -49,6 +56,7 @@ function createCombatStateEmbeds(combatState) {
       )
     );
   }
+
   // level up
   if (combatState.levelUp) {
     messages.push(
@@ -60,10 +68,12 @@ function createCombatStateEmbeds(combatState) {
       )
     );
   }
+
   // monster outro
   if (combatChecks.checkMonsterDead(combatState.monster)) {
     messages.push(embedUtils.combatOutroEmbed(combatState.monster));
   }
+
   // rewards
   if (
     combatState.rewards &&
@@ -77,6 +87,7 @@ function createCombatStateEmbeds(combatState) {
       )
     );
   }
+
   // need to rest
   if (combatChecks.checkCharacterDead(combatState.character)) {
     messages.push(
@@ -96,18 +107,23 @@ exports.run = (client, message, args) => {
       // if user has no character, they need to register one before playing the game
       if (!combatState.character) {
         combatState.rejectMessage = channel.send(embedUtils.noCharacterEmbed());
+
         return combatState;
       }
+
       // if there's no monster, there's no fight, so we're done
       if (!combatState.monster) {
         combatState.rejectMessage = channel.send('There is no monster!');
+
         return combatState;
       }
+
       // if character must rest, they can't fight
       if (combatChecks.checkCharacterMustRest(combatState.character)) {
         combatState.rejectMessage = channel.send(
           embedUtils.mustRestEmbed(author.username)
         );
+
         return combatState;
       }
 
@@ -116,6 +132,7 @@ exports.run = (client, message, args) => {
     })
     .then(combatStateRes => {
       const combatStateEmbeds = createCombatStateEmbeds(combatStateRes);
+
       return discordUtils.writeAllMessageBuffer(combatStateEmbeds, channel);
     })
     .catch(err => {
