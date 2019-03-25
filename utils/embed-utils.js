@@ -233,15 +233,15 @@ function levelUpEmbed(currentLevel, newLevel, statsDiff, username) {
       title: '**LEVEL UP**',
       text: `**${username}'s** level has increased from **${
         currentLevel.level
-      }** to **${newLevel.level}**\n\nHP: **${statsDiff.old.HP} -> ${
-        statsDiff.new.HP
-      }**\nMP: **${statsDiff.old.MP} -> ${statsDiff.new.MP}**\nSTR: **${
-        statsDiff.old.STR
-      } -> ${statsDiff.new.STR}**\nDEF: **${statsDiff.old.DEF} -> ${
-        statsDiff.new.DEF
-      }**\nAGI: **${statsDiff.old.AGI} -> ${statsDiff.new.AGI}**\nLUCK: **${
-        statsDiff.old.LUCK
-      } -> ${statsDiff.new.LUCK}**`
+      }** to **${newLevel.level}** and their HP has been restored!\n\nHP: **${
+        statsDiff.old.HP
+      } -> ${statsDiff.new.HP}**\nMP: **${statsDiff.old.MP} -> ${
+        statsDiff.new.MP
+      }**\nSTR: **${statsDiff.old.STR} -> ${statsDiff.new.STR}**\nDEF: **${
+        statsDiff.old.DEF
+      } -> ${statsDiff.new.DEF}**\nAGI: **${statsDiff.old.AGI} -> ${
+        statsDiff.new.AGI
+      }**\nLUCK: **${statsDiff.old.LUCK} -> ${statsDiff.new.LUCK}**`
     },
     gameEmbedThumbs.levelUp
   );
