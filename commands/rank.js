@@ -5,7 +5,7 @@ exports.run = (client, message, args) => {
 
   if (args.find(arg => arg.toLowerCase() === 'ranks')) {
     const ranks = LevelConsts.ranks.map(
-      rank => `Rank: **${rank.name}** - LVL UP: **${rank.maxXP}xp**`
+      rank => `**${rank.name}** - LVL UP: **${rank.maxXP}xp**`
     );
 
     const embedOpts = {
