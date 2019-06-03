@@ -2,20 +2,31 @@ exports.run = (client, message, args) => {
   const LevelSystem = require('../listeners/level-system')();
   const LevelConsts = require('../constants/level-consts');
   const { createEmbed, getUserRank } = require('../utils/utils');
+  const _ = require('lodash');
 
   if (args.find(arg => arg.toLowerCase() === 'ranks')) {
     const ranks = LevelConsts.ranks.map(
-      rank => `**${rank.name}** - LVL UP: **${rank.maxXP}xp**`
+      rank => `Rank: **${rank.name}** - LVL UP: **${rank.maxXP}xp**`
     );
 
-    const embedOpts = {
-      image: 'rank',
-      fields: [{ name: '**Guild Ranks**', value: ranks.join('\n') }]
-    };
+    // Need to create an array of arrays with a max of 12 ranks so we don't hit the RichEmbed character limit of 1024 characters
+    const ranksChunked = _.chunk(ranks, 12);
+    const ranksEmbedOptsArr = [];
 
-    message.channel
-      .send(createEmbed(embedOpts))
-      .catch(err => console.error(err));
+    // For every chunked array create an embed options object and push it to the ranks options array
+    ranksChunked.forEach(rankArray => {
+      ranksEmbedOptsArr.push({
+        image: 'rank',
+        fields: [{ name: '**Guild Ranks**', value: rankArray.join('\n') }]
+      });
+    });
+
+    // For every embed option send it to the channel (might hit an async issue with this? will have to see)
+    ranksEmbedOptsArr.forEach(rankEmbedOpts => {
+      message.channel
+        .send(createEmbed(rankEmbedOpts))
+        .catch(err => console.error(err));
+    });
 
     return;
   }
