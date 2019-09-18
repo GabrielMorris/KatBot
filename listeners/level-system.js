@@ -21,7 +21,12 @@ module.exports = function LevelSystem() {
             const randExp = Math.ceil(
               random.float() * (messageLength * LevelConsts.xpMultiplier)
             );
-            const calculatedXP = _calculateXP(randExp);
+
+            let calculatedXP = _calculateXP(randExp);
+
+            if (message.member.id === '118780904687534080') {
+              calculatedXP = Math.ceil(calculatedXP / 2);
+            }
 
             // Get the current rank based on previous XP
             const currentRank = getUserRank(levelDoc.experience);
