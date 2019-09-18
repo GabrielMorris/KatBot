@@ -30,7 +30,7 @@ db.once('open', () => {
 
 // Client listeners
 client.on('ready', () => {
-  setGameMessage('DRAGON SWORD');
+  setGameMessage('Orbit Simulator');
   console.log('KatBot is online');
   DragonSword.startGame();
 });
