@@ -1,7 +1,7 @@
 const embeds = {
   color: 'af2e1a',
   images: {
-    top: 'https://i.imgur.com/cGCcYmh.png',
+    top: 'https://i.imgur.com/qeG3a4s.png',
     rank: 'https://i.imgur.com/kFVpn2F.png',
     help: 'https://i.imgur.com/msJqq6O.png',
     memes: 'https://i.imgur.com/Tc1jSlx.png',
