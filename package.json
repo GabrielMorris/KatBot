@@ -16,7 +16,7 @@
     "forever": "^0.15.3",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
-    "mongoose": "^5.4.15",
+    "mongoose": "^5.7.5",
     "random": "^2.1.1"
   }
 }
